@@ -1,19 +1,54 @@
-<img align="right" width="40%" src="https://www.finos.org/hubfs/FINOS/finos-logo/FINOS_Icon_Wordmark_Name_RGB_horizontal.png">
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
+![website build](https://github.com/finos/legend-integration-juju/workflows/Docusaurus-website-build/badge.svg)
 
-# FINOS Software Project Blueprint
+# Legend Integration Juju
 
-Project blueprint is a GitHub repository template for all [Fintech Open Source Foundation (FINOS)](https://www.finos.org/) hosted GitHub repositories, contributed and maintained by FINOS as part of the [Open Developer Platform (ODP)](https://odp.finos.org) initiative.
+Short blurb about what your project does.
 
-## How to use this blueprint
+## Installation
 
-Please follow https://odp.finos.org/docs/project-collaboration/#finos-project-blueprint
+OS X & Linux:
 
-## Governance
-This blueprint implements https://github.com/finos/community/tree/master/governance#open-source-software-projects
+```sh
+npm install my-crazy-module --save
+```
+
+Windows:
+
+```sh
+edit autoexec.bat
+```
+
+## Usage example
+
+A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially screenshots / videos ([LiceCap](https://www.cockos.com/licecap/) is great for this kind of thing).
+
+_For more examples and usage, please refer to the [Wiki][wiki]._
+
+## Development setup
+
+Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+
+```sh
+make install
+npm test
+```
+
+## Roadmap
+
+List the roadmap steps; alternatively link the Confluence Wiki page where the project roadmap is published.
+
+1. Item 1
+2. Item 2
+3. ....
+
+## Contributing
+
+To learn about contributing to Legend, see the CONTRIBUTING.md file or the "contribute to Legend" section of the Legend documentation site.
 
 ## License
 
-Copyright 2019 Fintech Open Source Foundation
+Copyright 2021 FINOS
 
 Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
