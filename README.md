@@ -44,7 +44,7 @@ List the roadmap steps; alternatively link the Confluence Wiki page where the pr
 
 ## Contributing
 
-To learn about contributing to Legend, see the CONTRIBUTING.md file or the "contribute to Legend" section of the Legend documentation site.
+To learn about contributing to Legend, see the [CONTRIBUTING.md](CONTRIBUTING.md) file or the ["contribute to Legend"](https://legend.finos.org/docs/getting-started/contribute-to-legend) section of the Legend documentation site.
 
 ## License
 
