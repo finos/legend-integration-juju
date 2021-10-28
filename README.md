@@ -1,5 +1,5 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
-![website build](https://github.com/finos/{project slug}/workflows/Docusaurus-website-build/badge.svg)
+![website build](https://github.com/finos/legend-integration-juju/workflows/Docusaurus-website-build/badge.svg)
 
 # Legend Integration Juju
 
