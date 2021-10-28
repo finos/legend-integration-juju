@@ -1,6 +1,6 @@
 ---
 id: roadmap
-title: {project name} Roadmap
+title: Legend Integration Juju Roadmap
 ---
 
 ....
