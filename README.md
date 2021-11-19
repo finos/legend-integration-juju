@@ -1,3 +1,5 @@
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
+
 # Charmed FINOS Legend
 
 Deploy the Legend stack to Kubernetes using Juju and charmed operators.
@@ -25,8 +27,33 @@ The Legend applications stack was deployed as a *bundle* in the same cloud. [Juj
 ### Offline installation
 We assume your host had a functioning Internet connection. However it is also possible to [deploy charmed operators offline](https://juju.is/docs/olm/working-offline).
 
+### Related Repositories
+[finos-legend-gitlab-integrator](https://github.com/canonical/finos-legend-gitlab-integrator)
+[finos-legend-db-operator](https://github.com/canonical/finos-legend-db-operator)
+[finos-legend-libs](https://github.com/canonical/finos-legend-libs)
+[finos-legend-studio-operator](https://github.com/canonical/finos-legend-studio-operator)
+[finos-legend-sdlc-server-operator](https://github.com/canonical/finos-legend-sdlc-server-operator)
+[finos-legend-engine-server-operator](https://github.com/canonical/finos-legend-engine-server-operator)
+[https://github.com/canonical/finos-legend-bundle](https://github.com/canonical/finos-legend-bundle)
 
 ## Help and Support
 - [Canonical Mattermost Forum](https://chat.charmhub.io/charmhub/channels/charmed-legend). Authors of the charmed operators discussed in this tutorial should be reachable here.
 - [FINOS Legend Slack Channel](finos-lf.slack.com). FINOS developers should be reachable here.
+
+## Roadmap
+
+Visit our [roadmap](https://github.com/finos/legend#roadmap) to know more about the upcoming features.
+
+## Contributing
+
+Visit Legend [Contribution Guide](https://github.com/finos/legend/blob/master/CONTRIBUTING.md) to learn how to contribute to Legend.
+
+## License
+
+Copyright (c) 2021-present, Canonical
+
+Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
+
 
