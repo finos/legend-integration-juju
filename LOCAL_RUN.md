@@ -6,15 +6,17 @@ These steps may be carried out on any Linux distribution that has a [Snap](https
 The deployment is composed by the following steps:
 - [Install Microk8s](#Install-Microk8s)
 - [Install Juju](#Install-Juju)
+- [Bootstrap Juju](#Bootstrap-Juju)
 - [Add the Juju Legend Model](#Add-the-Juju-Legend-Model)
-- [Deploy Legend](#Deploy-Legend)
+- [Deploy the Legend Bundle](#Deploy-the-Legend-Bundle)
 - [Setup and Configure GitLab](#Setup-and-Configure-GitLab)
 - [Monitor Juju status](#Monitor-Juju-status)
-- [Authorize Legend against Gitlab](#Authorize-Legend-against-Gitlab)
-- [Authorize Legend user on SDLC](#Authorize-Legend-user-on-SDLC)
+- [Authorize the Legend Gitlab Application](#Authorize-the-Legend-Gitlab-Application)
+- [Authenticate user on Legend SDLC](#Authenticate-user-on-Legend-SDLC)
 - [Use Legend](#Use-Legend)
+- [Destroy setup](#Destroy-setup) (optional)
 
-## Installing Microk8s
+## Install Microk8s
 [Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that runs locally; you can install it on Linux running the following commands:
 ```bash
 sudo snap install microk8s --classic
@@ -49,12 +51,12 @@ addons:
 ...
 ```
 
-## Installing Juju
+## Install Juju
 To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up.
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
-## Bootstrap Juju in your cluster
+## Bootstrap Juju
 In Juju terms, "bootstrap" means "create a Juju controller", which is the part of Juju that runs in your cluster and controls the applications.
 
 ```bash
@@ -71,7 +73,7 @@ You can add a new model with
 juju add-model finos-legend
 ```
 
-## Deploy Legend
+## Deploy the Legend Bundle
 When you deploy an application with Juju, the installation code in the charmed operator will run and set up all the resources and environmental variables needed for the application to run properly. In the case of this tutorial, we are deploying a *bundle*, which describes applications to be deployed and relationships between them.
 
 Deploy the [finos-legend-bundle](https://github.com/finos/finos-legend-bundle) using `juju deploy finos-legend-bundle`.
@@ -118,14 +120,14 @@ mongodb-k8s/0*                         active    idle   10.1.252.116
 
 Note that all `Workload`,  `Status` are `active`; you can now go ahead and [authorize the Legend user against GitLab](#Authorize-Legend-user-against-Gitlab).
 
-## Authorize Legend user against Gitlab
+## Authorize the Legend Gitlab Application
 Using `juju status`, grab the `Address` of the `Unit` called `finos-legend-studio-k8s/0*` and point your browser to `http://<STUDIO-IP>:8080`; you should be redirected to a GitLab App authorization page.
 
 ![Authorize Legend Charm](./images/authorize-legend-charm.png)
 
 Click on `Authorize` and you should be redirected back to Legend Studio. Note the `Unauthorized` pop-up dialog box in the lower right corner. ![Unauthorized User](./images/unauthorized-studio-charm.png) This is expected, since the Legend user needs to [authenticate against the SDLC component]((#authorize-the-user-to-use-legend)).
 
-## Authorize Legend user on SDLC
+## Authenticate user on Legend SDLC
 As before, using `juju status`, grab the `Address` of the `Unit` called `finos-legend-sdlc-k8s/0*` and point your browser to `http://<SDLC_IP>:7070/api/auth/authorize`; you should get redirected again to GitLab, as follows. Click on `Authorize` and you should be redirected to Legend Studio.
 
 ![Authorize User](./images/authorize-charm-user.png)
@@ -135,15 +137,14 @@ From `http://<STUDIO_IP>:8080/studio` you should be able tostart using Legend St
 
 ![Authorized Legend](./images/authorized-studio-charm.png)
 
-## Cleaning up
+## Destroy setup
 To remove all deployed Legend applications, remove any data and reset Juju to the state it was before Legend was deployed, you can destroy the controller (created during the bootstrapping process). **This is a non-reversible operation - all your data created in studio will be lost!**
 
 ```bash
 juju destroy-controller -y --destroy-all-models --destroy-storage microk8s
 ```
 
-## Remove Juju and MicroK8s
-You can remove Juju, MicroK8s and any data associated with these snap's by running
+To also remove Juju and MicroK8s, you can run:
 ``` bash
 sudo snap remove juju --purge
 sudo snap remove microk8s --purge
