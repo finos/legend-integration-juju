@@ -28,17 +28,18 @@ The Legend applications stack was deployed as a *bundle* in the same cloud. [Juj
 We assume your host had a functioning Internet connection. However it is also possible to [deploy charmed operators offline](https://juju.is/docs/olm/working-offline).
 
 ### Related Repositories
-[finos-legend-gitlab-integrator](https://github.com/canonical/finos-legend-gitlab-integrator)
-[finos-legend-db-operator](https://github.com/canonical/finos-legend-db-operator)
-[finos-legend-libs](https://github.com/canonical/finos-legend-libs)
-[finos-legend-studio-operator](https://github.com/canonical/finos-legend-studio-operator)
-[finos-legend-sdlc-server-operator](https://github.com/canonical/finos-legend-sdlc-server-operator)
-[finos-legend-engine-server-operator](https://github.com/canonical/finos-legend-engine-server-operator)
-[https://github.com/canonical/finos-legend-bundle](https://github.com/canonical/finos-legend-bundle)
+- [finos-legend-gitlab-integrator](https://github.com/canonical/finos-legend-gitlab-integrator)
+- [finos-legend-db-operator](https://github.com/canonical/finos-legend-db-operator)
+- [finos-legend-libs](https://github.com/canonical/finos-legend-libs)
+- [finos-legend-studio-operator](https://github.com/canonical/finos-legend-studio-operator)
+- [finos-legend-sdlc-server-operator](https://github.com/canonical/finos-legend-sdlc-server-operator)
+- [finos-legend-engine-server-operator](https://github.com/canonical/finos-legend-engine-server-operator)
+- [https://github.com/canonical/finos-legend-bundle](https://github.com/canonical/finos-legend-bundle)
 
 ## Help and Support
-- [Canonical Mattermost Forum](https://chat.charmhub.io/charmhub/channels/charmed-legend). Authors of the charmed operators discussed in this tutorial should be reachable here.
-- [FINOS Legend Slack Channel](finos-lf.slack.com). FINOS developers should be reachable here.
+Feel free to [create an issue] or submit a Pull Request to this repository in order to contribute; make sure to read the Legend [Contribution Guide](https://github.com/finos/legend/blob/master/CONTRIBUTING.md) first.
+
+You can also use chat to the contributors to this Legend intergation via the [FINOS Legend Slack Channel](finos-lf.slack.com) or the [Canonical Mattermost Forum](https://chat.charmhub.io/charmhub/channels/charmed-legend).
 
 ## Roadmap
 
