@@ -83,9 +83,9 @@ In another terminal, you can check the deployment status and the integration cod
 You'll notice that the Unit `finos-legend-gitlab-integrator-k8s/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
 
 ## Setup and Configure GitLab
-To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `LOCAL_GITLAB.md` that talks about that (TODO).
+To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
-If this is your first experience with Legend, we suggest you starting with GitLab.com; you simply need to create an account and you're good to go. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `LOCAL_GITLAB.md`.
+If this is your first experience with Legend, we suggest you starting with GitLab.com; you simply need to create an account and you're good to go. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
 
 To configure GitLab with Legend, you'll need a [GitLab Access Token](LOCAL_RUN.md):
 ```bash
