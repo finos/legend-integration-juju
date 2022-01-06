@@ -92,7 +92,9 @@ To configure GitLab with Legend, you'll need a [GitLab Access Token](LOCAL_RUN.m
 $ juju config finos-legend-gitlab-integrator-k8s access-token="<GITLAB_ACCESS_TOKEN>"
 ```
 
-`GITLAB_ACCESS_TOKEN` is what we've generated earlier; you can add `gitlab-host=<GITLAB_HOST>` to the command, if you want to point to the host/DNS/IP of another GitLab instance.
+`GITLAB_ACCESS_TOKEN` is what we've generated earlier.
+
+If you want to use a different GitLab instance, you'd need to generate a `GITLAB_ACCESS_TOKEN` there and add `gitlab-host=<GITLAB_HOST>` to the command, where `GITLAB_HOST` can be a host, DNS or IP.
 
 ## Monitor Juju status
 Run `juju status` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
