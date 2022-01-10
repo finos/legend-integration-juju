@@ -1,4 +1,4 @@
-[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@main/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
 
 ## Juju and Charmed Operators
 
@@ -33,7 +33,7 @@ To get started, you can checkout the [local run documention](LOCAL_RUN.md), whic
 
 ## Help and Support
 
-Feel free to [create an issue](https://github.com/finos/legend-integration-juju/issues/new/choose) or submit a Pull Request to this repository in order to contribute; make sure to read the Legend [Contribution Guide](https://github.com/finos/legend/blob/master/CONTRIBUTING.md) first.
+Feel free to [create an issue](https://github.com/finos/legend-integration-juju/issues/new/choose) or submit a Pull Request to this repository in order to contribute; make sure to read the Legend [Contribution Guide](https://github.com/finos/legend/blob/main/CONTRIBUTING.md) first.
 
 You can also use chat to the contributors to this Legend integration via the [FINOS Legend Slack Channel](finos-lf.slack.com) or the [Canonical Mattermost channel](https://chat.charmhub.io/charmhub/channels/charmed-legend).
 
@@ -43,7 +43,7 @@ Visit our [roadmap](https://github.com/finos/legend#roadmap) to know more about 
 
 ## Contributing
 
-Visit Legend [Contribution Guide](https://github.com/finos/legend/blob/master/CONTRIBUTING.md) to learn how to contribute to Legend on Juju.
+Visit Legend [Contribution Guide](https://github.com/finos/legend/blob/main/CONTRIBUTING.md) to learn how to contribute to Legend on Juju.
 
 ## License
 

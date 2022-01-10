@@ -52,7 +52,7 @@ Ensure that the selected add-ons are enabled as shown below by checking the outp
 $ microk8s status --wait-ready
 microk8s is running
 high-availability: no
-  datastore master nodes: 127.0.0.1:19001
+  datastore main nodes: 127.0.0.1:19001
   datastore standby nodes: none
 addons:
   enabled:
