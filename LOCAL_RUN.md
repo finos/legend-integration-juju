@@ -76,7 +76,10 @@ juju add-model finos-legend
 ## Deploy the Legend Bundle
 When you deploy an application with Juju, the installation code in the charmed operator will run and set up all the resources and environmental variables needed for the application to run properly. In the case of this tutorial, we are deploying a *bundle*, which describes applications to be deployed and relationships between them.
 
-Deploy the [finos-legend-bundle](https://github.com/finos/finos-legend-bundle) using `juju deploy finos-legend-bundle`.
+Deploy the [finos-legend-bundle](https://github.com/finos/finos-legend-bundle) using 
+``` bash
+juju deploy finos-legend-bundle`
+```
 
 In another terminal, you can check the deployment status and the integration code running using `watch --color juju status --color`.
 
@@ -85,16 +88,35 @@ You'll notice that the Unit `finos-legend-gitlab-integrator-k8s/0` will get to `
 ## Setup and Configure GitLab
 To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
-If this is your first experience with Legend, we suggest you starting with GitLab.com; you simply need to create an account and you're good to go. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
+If this is your first experience with Legend, we suggest you starting with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
 
-To configure GitLab with Legend, you'll need a [GitLab Access Token](LOCAL_RUN.md):
+### GitLab.com
+1. Create an account on gitlab.com
+2. Create an application:
+- Login GitLab.com, click your profile picture on the right upper corner and click "Preferences". 
+- Click "Applications" on the left menu. 
+- Create a new application with the following information:
+  - name
+  - enter a dummy URI in the redirect URL field (dummy.org will work for now) 
+  - enable the following scopes: 
+    - API
+    - Open ID
+    - Profile
+- Click "Save Application".
+
+3. Copy the "Application ID" and "Secret" information.
+
+In your terminal, run the following command with the infromation you jsut copied
 ```bash
-$ juju config finos-legend-gitlab-integrator-k8s access-token="<GITLAB_ACCESS_TOKEN>"
+juju config finos-legend-gitlab-integrator-k8s bypass-client-id="<Application ID>" bypass-client-secret="<Secret>"
 ```
 
-`GITLAB_ACCESS_TOKEN` is what we've generated earlier.
-
-If you want to use a different GitLab instance, you'd need to generate a `GITLAB_ACCESS_TOKEN` there and add `gitlab-host=<GITLAB_HOST>` to the command, where `GITLAB_HOST` can be a host, DNS or IP.
+Retrieve the GitLab URI from the GitLab Integrator charm using  
+```bash
+juju show-unit finos-legend-gitlab-integrator-k8s/0 | grep legend-gitlab-redirect-uris
+```
+  
+Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
 
 ## Monitor Juju status
 Run `juju status` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
