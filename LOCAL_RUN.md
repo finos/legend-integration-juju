@@ -20,8 +20,10 @@ The deployment is composed by the following steps:
 [Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that runs locally; you can install it on Linux running the following commands:
 ```bash
 sudo snap install microk8s --classic
-snap alias microk8s.kubectl kubectl
-source profile
+sudo snap alias microk8s.kubectl kubectl
+source ~/.profile
+sudo usermod -a -G microk8s $USER
+sudo chown -f -R $USER ~/.kube
 newgrp microk8s
 ```
 
@@ -30,8 +32,7 @@ On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link -
 To configure and start `microk8s`, simply run:
 
 ```bash
-microk8s install
-microk8s enable dns,storage,ingress
+microk8s enable dns storage ingress
 microk8s status --wait-ready
 ```
 
@@ -165,7 +166,7 @@ From `http://<STUDIO_IP>:8080/studio` you should be able tostart using Legend St
 To remove all deployed Legend applications, remove any data and reset Juju to the state it was before Legend was deployed, you can destroy the controller (created during the bootstrapping process). **This is a non-reversible operation - all your data created in studio will be lost!**
 
 ```bash
-juju destroy-controller -y --destroy-all-models --destroy-storage microk8s
+juju destroy-controller -y --destroy-all-models --destroy-storage finos-legend-controller
 ```
 
 To also remove Juju and MicroK8s, you can run:
