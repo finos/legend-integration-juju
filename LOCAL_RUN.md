@@ -41,7 +41,7 @@ Below is the expected output; before moving forward, wait to see that `dns`, `in
 ```bash
 microk8s is running
 high-availability: no
-  datastore master nodes: 127.0.0.1:19001
+  datastore main nodes: 127.0.0.1:19001
   datastore standby nodes: none
 addons:
   enabled:
