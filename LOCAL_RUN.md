@@ -53,6 +53,7 @@ microk8s status --wait-ready
 
 After a short while, you should see the follwoing:
 
+TODO --wait-ready does not wait
 ``` bash
 $ microk8s status --wait-ready
 microk8s is running
