@@ -1,47 +1,64 @@
 # How to run Legend locally using Charmed Operators
-This tutorial will cover how to use Juju and Charmed Operators to deploy an instance of the [FINOS Legend](https://www.finos.org/legend) stack on your local workstation, using [Microk8s](https://microk8s.io/). It can be used for evaluation and demonstration purposes, as well as  development of new Legend features or other FINOS *Charmed* applications.
+This tutorial will cover how to use Juju and Charmed Operators (https://juju.is/) to deploy an instance of the [FINOS Legend](https://www.finos.org/legend) stack on a Kubernetes cluster running on your laptop. We will use [Microk8s](https://microk8s.io/) to create the cluster and Juju to deploy and manage the Legend applications. 
 
-These steps may be carried out on any Linux distribution that has a [Snap](https://snapcraft.io/) package manager installed. The steps in this tutorial have been tested on [Ubuntu 20.04](https://releases.ubuntu.com/focal/). Following the steps in this tutorial does require that your Linux host has a working Internet connection.
+This deployment can be used for evaluation and demonstration purposes, as well as local development of new Legend features or other FINOS *Charmed* applications. The same instructions, however, can be used in a variety of [clouds and Kubernetes flavours](https://juju.is/docs/olm/clouds) supported by Juju. 
+
+
+The steps in this tutorial have been tested on [Ubuntu 20.04](https://releases.ubuntu.com/focal/) machine with an Internet connection. You will need a [GitLab](https://gitlab.com/) account with persmissions to create applications. 
 
 The deployment is composed by the following steps:
+
+_Create a Kubernetes cluster_
 - [Install Microk8s](#Install-Microk8s)
+
+_Prepare the cluster for Legend_
 - [Install Juju](#Install-Juju)
 - [Bootstrap Juju](#Bootstrap-Juju)
 - [Add the Juju Legend Model](#Add-the-Juju-Legend-Model)
+
+_Deploy the Charmed Operators_
 - [Deploy the Legend Bundle](#Deploy-the-Legend-Bundle)
 - [Setup and Configure GitLab](#Setup-and-Configure-GitLab)
 - [Monitor Juju status](#Monitor-Juju-status)
+
+_Configure the Legend Stack_
 - [Authorize the Legend Gitlab Application](#Authorize-the-Legend-Gitlab-Application)
 - [Authenticate user on Legend SDLC](#Authenticate-user-on-Legend-SDLC)
+
 - [Use Legend](#Use-Legend)
+
 - [Destroy setup](#Destroy-setup) (optional)
 
 ## Install Microk8s
-[Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that runs locally; you can install it on Linux running the following commands:
-```bash
+[Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that creates a fully functional Kubernetes cluster in your laptop; you can install it on Linux running:
+``` bash
 sudo snap install microk8s --classic
+```
+Instructions for other operating systems are also available at https://microk8s.io/docs/install-alternatives.
+
+The following commands will 
+- add an alias for kubectl;
+- create a new shell session with active membership to the microk8s group (you can also achieve this by logging out, and logging back in again);
+- enable the dns, storage and ingress add-ons;
+  - This operation will take a few moments to complete. The `--wait-ready` flag waits for microK8s to be ready.  
+
+``` bash
 sudo snap alias microk8s.kubectl kubectl
 source ~/.profile
 sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 newgrp microk8s
-```
-
-On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link --overwrite python@3.9`) and [HomeBrew](brew.sh) installed, you can simply run `brew install ubuntu/microk8s/microk8s`.
-
-To configure and start `microk8s`, simply run:
-
-```bash
-microk8s enable dns storage ingress
 microk8s status --wait-ready
 ```
 
-Below is the expected output; before moving forward, wait to see that `dns`, `ingress` and `storage` are listed as `enabled`.
+After a short while, you should see the follwoing:
 
-```bash
+TODO --wait-ready does not wait
+``` bash
+$ microk8s status --wait-ready
 microk8s is running
 high-availability: no
-  datastore main nodes: 127.0.0.1:19001
+  datastore master nodes: 127.0.0.1:19001
   datastore standby nodes: none
 addons:
   enabled:
@@ -49,45 +66,59 @@ addons:
     ha-cluster           # Configure high availability on the current node
     ingress              # Ingress controller for external access
     storage              # Storage class; allocates storage from host directory
-...
 ```
 
-## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up.
 
-If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
+On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link --overwrite python@3.9`) and [HomeBrew](brew.sh) installed, you can simply run `brew install ubuntu/microk8s/microk8s`.
+
+
+## Install Juju
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install the Juju snap with `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up.
 
 ## Bootstrap Juju
 In Juju terms, "bootstrap" means "create a Juju controller", which is the part of Juju that runs in your cluster and controls the applications.
 
 ```bash
-juju bootstrap microk8s finos-legend-controller
+juju bootstrap microk8s
 ```
-
-You are free to use any name other than `finos-legend-controller` but it must be consistent through the rest of this tutorial.
 
 ## Add the Juju Legend Model
 [Juju models](https://juju.is/docs/olm/models) are a logical grouping of applications and infrastructure that work together to deliver a service or product. In Kubernetes terms, models are effectively namespaces. Models are fundamental concepts in Juju and implement service isolation, access control, repeatability and boundaries.
 
 You can add a new model with
 ``` bash
-juju add-model finos-legend
+juju add-model <model-name>
 ```
+
+We will use `finos-legend` as the <model-name>.
 
 ## Deploy the Legend Bundle
 When you deploy an application with Juju, the installation code in the charmed operator will run and set up all the resources and environmental variables needed for the application to run properly. In the case of this tutorial, we are deploying a *bundle*, which describes applications to be deployed and relationships between them.
 
 Deploy the [finos-legend-bundle](https://github.com/finos/finos-legend-bundle) using 
+
+TODO: Remove `--channel=edge` once `stable` is released. 
 ``` bash
-juju deploy finos-legend-bundle`
+juju deploy finos-legend-bundle --channel=edge
 ```
 
+TODO: Temporary:
+```
+juju deploy nginx-ingress-integrator ingress-studio
+juju deploy nginx-ingress-integrator ingress-sdlc
+juju deploy nginx-ingress-integrator ingress-engine
+  
+juju relate finos-legend-engine-k8s ingress-engine
+juju relate finos-legend-studio-k8s ingress-studio
+juju relate finos-legend-sdlc-k8s ingress-sdlc
+```
+  
 In another terminal, you can check the deployment status and the integration code running using `watch --color juju status --color`.
 
 You'll notice that the Unit `finos-legend-gitlab-integrator-k8s/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
 
 ## Setup and Configure GitLab
-To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
+To run Legend, you need to either host a GitLab instance, or use GitLab.com; the type of installation really depends on user's requirements, there is a section in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
 If this is your first experience with Legend, we suggest you starting with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
 
@@ -98,18 +129,18 @@ If this is your first experience with Legend, we suggest you starting with GitLa
 - Click "Applications" on the left menu. 
 - Create a new application with the following information:
   - name
-  - enter a dummy URI in the redirect URL field (dummy.org will work for now) 
+  - enter a dummy URI in the redirect URL field (http://dummy will work for now) 
   - enable the following scopes: 
     - API
     - Open ID
     - Profile
 - Click "Save Application".
 
-3. Copy the "Application ID" and "Secret" information.
+3. Copy the <Application ID> and <Secret> information.
 
-In your terminal, run the following command with the infromation you jsut copied
+In your terminal, run the following command with the infromation you just copied
 ```bash
-juju config finos-legend-gitlab-integrator-k8s bypass-client-id="<Application ID>" bypass-client-secret="<Secret>"
+juju config finos-legend-gitlab-integrator-k8s client-id="<Application ID>" client-secret="<Secret>"
 ```
 
 Retrieve the GitLab URI from the GitLab Integrator charm using  
@@ -117,12 +148,22 @@ Retrieve the GitLab URI from the GitLab Integrator charm using
 juju show-unit finos-legend-gitlab-integrator-k8s/0 | grep legend-gitlab-redirect-uris
 ```
   
-Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
+Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. It should look something like the following:
+  
+``` bash
+http://10.1.122.204:6060/callback
+http://10.1.122.248:7070/api/auth/callback
+http://10.1.122.248:7070/api/pac4j/login/callback
+http://10.1.122.255:8080/studio/log.in/callback
+```  
+  
+TODO: Add `http://10.1.122.248:7070/api/pac4j/login/callback` to the charm's list of URLs  
 
 ## Monitor Juju status
-Run `juju status` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
+Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
 
 ```bash
+$ watch --color juju status --color
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
 lma    microk8s    microk8s/localhost  2.9.16   unsupported  14:19:18+01:00
 
@@ -146,6 +187,15 @@ mongodb-k8s/0*                         active    idle   10.1.252.116
 Note that all `Workload`,  `Status` are `active`; you can now go ahead and [authorize the Legend user against GitLab](#Authorize-Legend-user-against-Gitlab).
 
 ## Authorize the Legend Gitlab Application
+
+### A notes on your browser settings and cookies
+The Legend stack rely on cookies to authenticate user across the applications. A recent change on how [samesite cookies](https://web.dev/samesite-cookies-explained/] are handled by Google Chrome and Mozilla Firefox can block the authentication process. To avoid problems with cookies, before starting the authentication process:
+  
+- make sure you use the private mode
+- allow samesite cookies in your browser
+- clear the browser's cache 
+- [if you are using Firefox](https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop#w_how-to-tell-when-firefox-is-protecting-you), disable Enchanced Tracking Protection for the Studio and SDLC pages.
+  
 Using `juju status`, grab the `Address` of the `Unit` called `finos-legend-studio-k8s/0*` and point your browser to `http://<STUDIO-IP>:8080`; you should be redirected to a GitLab App authorization page.
 
 ![Authorize Legend Charm](./images/authorize-legend-charm.png)
