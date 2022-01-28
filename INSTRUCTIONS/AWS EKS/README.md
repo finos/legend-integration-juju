@@ -1,10 +1,15 @@
 # Deploy Legend on AWS EKS using Juju
+This tutorial will cover how to use Juju and Charmed Operators to deploy an instance of the [FINOS Legend](https://www.finos.org/legend) stack on Amazon EKS.
 
-This document will guide you through the process of setting up a FINOS Legend deployment on AWS EKS and using gitlab.com for OAuth. 
+### Audience
+This document can be used for evaluation of the Legend stack running on EKS. Please contact FINOS if you would like to run Legend in a production enviroment.  
+
+### Prerequisites 
 This document assumes that you already have installed the Juju CLI, AWS CLI, ``kubectl``, and ``eksctl`` as described in th prerequisites section of [this page](https://juju.is/docs/olm/amazon-elastic-kubernetes-service-(amazon-eks)#heading--prerequisites). 
 
-## Create an AWS cluster (without a nodegroup)
+## Create and setup an AWS cluster
 
+### Create the cluster
 The command below will create an EKS cluster description file.
 ``` yaml
 cat << EOF > eks-cluster.yaml
@@ -35,16 +40,14 @@ The cluster creation can take up to 25 minutes to complete.
 > If you still encounter issues, try using a different AWS region.
 
 
-> 💡 This is a good time to set up a [gitlab.com application](#gitlab.com-application-setup). 
-
-After the EKS cluster was deployed, we need to generate our ``kubeconfig`` file, which contains the necessary details to connect to our newly created cluster. To do so, run the following:
+After the EKS cluster was deployed, we need to generate our `kubeconfig` file, which contains the necessary details to connect to our newly created cluster. To do so, run the following:
 
 ``` bash
 eksctl utils write-kubeconfig --cluster finos-legend --region eu-west-2
 kubectl config rename-context $(kubectl config current-context) finos-legend
 ```
 
-## Setting up Ingress
+### Set up Ingress
 
 To make sure the Legend application are accessible outside the cluster, we need to install the Nginx Ingress resources and set up an AWS LoadBalancer. For this, run:
 ```
@@ -53,18 +56,24 @@ kubectl apply -f "$RAW_GIST_URL/ingress.yaml"
 sleep 10
 ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
 ```
-## Setting up Juju
 
-### Bootstrap Juju
+## Install Juju
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up.
+
+If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
+
+
+
+## Bootstrap Juju
 
 In Juju terms, "bootstrap" means "create a Juju controller", which is the part of Juju that runs in your cluster and controls the applications. You can bootstrap Juju to the EKS cluster by running
 ``` bash
 juju bootstrap finos-legend
 ```
-Running juju status will now show the Juju Controller in your cloud.
+Running `juju status` will now show the Juju Controller in your cloud.
 
 ### Create a Model
-Juju models are a logical grouping of applications and infrastructure that work together to deliver a service or product. In Kubernetes terms, models are effectively namespaces. Models are fundamental concepts in Juju and implement service isolation, access control, repeatability and boundaries.
+[Juju models](https://juju.is/docs/olm/models) are a logical grouping of applications and infrastructure that work together to deliver a service or product. In Kubernetes terms, models are effectively namespaces. Models are fundamental concepts in Juju and implement service isolation, access control, repeatability and boundaries.
 
 You can add a new model with
 
@@ -72,8 +81,7 @@ You can add a new model with
 juju add-model finos-legend
 ```
 
-## Deplpying Legend
-
+## Deploy the Legend Bundle
 When you deploy an application with Juju, the installation code in the charmed operator will run and set up all the resources and environmental variables needed for the application to run properly. In the case of this tutorial, we are deploying a bundle -- which not only describes a set of applications we want deployed, but also the relations between them.
 
 Deploy the finos-legend-bundle in the finos-legend model using the command line :
@@ -86,41 +94,48 @@ In another terminal window, you can see the applications being deployed and the 
 ``` bash
 watch --color juju status --color
 ```
-
-After a couple of minutes, `gitlab-integrator-k8s` will be in `Waiting` status with the message `no legend gitlab info present in relation yet`. You can now move to the next session.
+You'll notice that the Unit `gitlab-integrator/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
 
 ## Gitlab.com Application setup
+To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
-1. Create a gitlab.com account if you don't have one. 
-2. Click your profile picture on the right upper corner, and click `Preferences`. 
-3. On the left, select `Applications`. 
-4. Create a new application:
-   - Choose a name for the application
-   - Check the `Confidential` checkbox 
-   - Enter the following `Redirect URIs`:
-     ``` bash
-     http://legend-studio/studio/log.in/callback
-     http://legend-engine/callback
-     http://legend-sdlc/api/auth/callback
-     http://legend-sdlc/api/pac4j/login/callback
-     ```
-   - Select the following scopes: 
-      - `api`
-      - `openid`
-      - `profile`
-5. Click `Save Application`.
+If this is your first experience with Legend, we suggest you starting with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
+
+#### 1. Create a GitLab Application
+
+1. Create an account on gitlab.com
+2. Create an application:
+- Login GitLab.com, click your profile picture on the right upper corner and click "Preferences". 
+- Click "Applications" on the left menu. 
+- Create a new application with the following information:
+  - name
+  - Check the `Confidential` checkbox 
+  - Enter the following `Redirect URIs`:
+    ``` bash
+    http://legend-studio/studio/log.in/callback
+    http://legend-engine/callback
+    http://legend-sdlc/api/auth/callback
+    http://legend-sdlc/api/pac4j/login/callback
+    ```
+  - enable the following scopes: 
+    - API
+    - Open ID
+    - Profile
+3. Click `Save Application`.
 
 Note that the Redirect URIs will have to be replaced manually if you decide to use [multiple Amazon Load Balancers](#using-multiple-aws-load-balancers) or  configure them with external host names.
 
 On the following page, make a note of the `Application ID` and `Secret`. 
 
-Pass the `Application ID` and `Secret` to the Legend stack with
+#### 2. Pass the application details to the Legend stack
 
+In your terminal run the following command to pass the `Application ID` and `Secret` to the Legend stack
 ``` bash
 juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id> "
 ```
 
-After that all the units shown with juju status should become `active`.
+Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
+
 
 ## Accessing the Legend Studio dashboard
 
@@ -164,9 +179,10 @@ juju config legend-engine external-hostname="engine.your.domainname"
 ```
 You can now proceed to [Authenticate the user and the application](#authenticate_the_user_and_the_application).
 
-### Authenticate the user and the application
+### Authorize the GitLab user and application
 
 > ⚠️ Browser settings and cookies
+> 
 > The Legend stack rely on cookies to authenticate user across the applications. A recent change on how [samesite cookies](https://web.dev/samesite-cookies-explained/] are handled by Google Chrome and Mozilla Firefox can block the authentication process. To avoid problems with cookies, before starting the authentication process:
 >  
 > - make sure you use the private mode
@@ -174,9 +190,11 @@ You can now proceed to [Authenticate the user and the application](#authenticate
 > - clear the browser's cache 
 > - [if you are using Firefox](https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop#w_how-to-tell-when-firefox-is-protecting-you), disable Enchanced Tracking Protection for the Studio and SDLC pages.
 
-In your browser, enter the following URLs to authenticate the user and applications: 
-[http://legend-engine](http://legend-engine)
-[http://legend-sdlc](http://legend-sdlc)
+In your browser, enter the following URLs to authorize the user and applications: 
+
+[http://legend-sdlc](http://legend-sdlc) - Click `Authorize`. You should see the text `Authorized`. 
+
+[http://legend-engine](http://legend-studio) - Click `Authorize`. You should be redirected to Legend Studio.
 
 If the process was sucessful, you will be able to see the Legend Studio dashboard on [http://legend-studio/studio/-/setup](http://legend-studio/studio/-/setup)! 🎉
 
