@@ -79,12 +79,12 @@ When you deploy an application with Juju, the installation code in the charmed o
 
 Deploy the [finos-legend-bundle](https://github.com/finos/finos-legend-bundle) using 
 ``` bash
-juju deploy finos-legend-bundle`
+juju deploy finos-legend-bundle --trust --channel=edge
 ```
 
 In another terminal, you can check the deployment status and the integration code running using `watch --color juju status --color`.
 
-You'll notice that the Unit `finos-legend-gitlab-integrator-k8s/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
+You'll notice that the Unit `gitlab-integrator/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
 
 ## Setup and Configure GitLab
 To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
@@ -109,12 +109,12 @@ If this is your first experience with Legend, we suggest you starting with GitLa
 
 In your terminal, run the following command with the infromation you jsut copied
 ```bash
-juju config finos-legend-gitlab-integrator-k8s bypass-client-id="<Application ID>" bypass-client-secret="<Secret>"
+juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret>"
 ```
 
 Retrieve the GitLab URI from the GitLab Integrator charm using  
 ```bash
-juju show-unit finos-legend-gitlab-integrator-k8s/0 | grep legend-gitlab-redirect-uris
+juju show-unit gitlab-integrator/0 | grep legend-gitlab-redirect-uris
 ```
   
 Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
@@ -126,34 +126,40 @@ Run `juju status` to see the applications reacting to the configuration change. 
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
 lma    microk8s    microk8s/localhost  2.9.16   unsupported  14:19:18+01:00
 
-App                                 Version  Status  Scale  Charm                               Store     Channel  Rev  OS          Address         Message
-finos-legend-db-k8s                          active      1  finos-legend-db-k8s                 charmhub  edge      13  kubernetes  10.152.183.135
-finos-legend-engine-k8s                      active      1  finos-legend-engine-k8s             charmhub  edge      13  kubernetes  10.152.183.11
-finos-legend-gitlab-integrator-k8s           active      1  finos-legend-gitlab-integrator-k8s  charmhub  edge      24  kubernetes  10.152.183.102
-finos-legend-sdlc-k8s                        active      1  finos-legend-sdlc-k8s               charmhub  edge      36  kubernetes  10.152.183.42
-finos-legend-studio-k8s                      active      1  finos-legend-studio-k8s             charmhub  edge      14  kubernetes  10.152.183.141
-mongodb-k8s                                  active      1  mongodb-k8s                         charmhub  edge       6  kubernetes  10.152.183.210
+App                Version  Status  Scale  Charm                               Store     Channel  Rev  OS          Address         Message
+gitlab-integrator           active      1  finos-legend-gitlab-integrator-k8s  charmhub  edge      25  kubernetes  10.152.183.65
+ingress-engine              active      1  nginx-ingress-integrator            charmhub  stable    24  kubernetes  10.152.183.41
+ingress-sdlc                active      1  nginx-ingress-integrator            charmhub  stable    24  kubernetes  10.152.183.188
+legend-db                   active      1  finos-legend-db-k8s                 charmhub  edge      13  kubernetes  10.152.183.219
+legend-engine               active      1  finos-legend-engine-k8s             charmhub  stable    13  kubernetes  10.152.183.97
+legend-ingress              active      1  nginx-ingress-integrator            charmhub  stable    24  kubernetes  10.152.183.63
+legend-sdlc                 active      1  finos-legend-sdlc-k8s               charmhub  stable    36  kubernetes  10.152.183.238
+legend-studio               active      1  finos-legend-studio-k8s             charmhub  stable    14  kubernetes  10.152.183.66
+mongodb                     active      1  mongodb-k8s                         charmhub  edge       8  kubernetes  10.152.183.13
 
-Unit                                   Workload  Agent  Address       Ports  Message
-finos-legend-db-k8s/0*                 active    idle   10.1.252.83
-finos-legend-engine-k8s/0*             active    idle   10.1.252.98
-finos-legend-gitlab-integrator-k8s/0*  active    idle   10.1.252.71
-finos-legend-sdlc-k8s/0*               active    idle   10.1.252.122
-finos-legend-studio-k8s/0*             active    idle   10.1.252.78
-mongodb-k8s/0*                         active    idle   10.1.252.116
+Unit                  Workload  Agent  Address      Ports  Message
+gitlab-integrator/0*  active    idle   10.1.123.61
+ingress-engine/0*     active    idle   10.1.123.46         Ingress with service IP(s): 10.152.183.23
+ingress-sdlc/0*       active    idle   10.1.123.50         Ingress with service IP(s): 10.152.183.158
+ingress-studio/0*     active    idle   10.1.123.62         Ingress with service IP(s): 10.152.183.206
+legend-db/0*          active    idle   10.1.123.63
+legend-engine/0*      active    idle   10.1.123.45
+legend-sdlc/0*        active    idle   10.1.123.43
+legend-studio/0*      active    idle   10.1.123.48
+mongodb/0*            active    idle   10.1.123.21
 ```
 
 Note that all `Workload`,  `Status` are `active`; you can now go ahead and [authorize the Legend user against GitLab](#Authorize-Legend-user-against-Gitlab).
 
 ## Authorize the Legend Gitlab Application
-Using `juju status`, grab the `Address` of the `Unit` called `finos-legend-studio-k8s/0*` and point your browser to `http://<STUDIO-IP>:8080`; you should be redirected to a GitLab App authorization page.
+Using `juju status`, grab the `Address` of the `Unit` called `legend-studio/0*` and point your browser to `http://<STUDIO-IP>:8080`; you should be redirected to a GitLab App authorization page.
 
 ![Authorize Legend Charm](./images/authorize-legend-charm.png)
 
 Click on `Authorize` and you should be redirected back to Legend Studio. Note the `Unauthorized` pop-up dialog box in the lower right corner. ![Unauthorized User](./images/unauthorized-studio-charm.png) This is expected, since the Legend user needs to [authenticate against the SDLC component]((#authorize-the-user-to-use-legend)).
 
 ## Authenticate user on Legend SDLC
-As before, using `juju status`, grab the `Address` of the `Unit` called `finos-legend-sdlc-k8s/0*` and point your browser to `http://<SDLC_IP>:7070/api/auth/authorize`; you should get redirected again to GitLab, as follows. Click on `Authorize` and you should be redirected to Legend Studio.
+As before, using `juju status`, grab the `Address` of the `Unit` called `legend-sdlc/0*` and point your browser to `http://<SDLC_IP>:7070/api/auth/authorize`; you should get redirected again to GitLab, as follows. Click on `Authorize` and you should be redirected to Legend Studio.
 
 ![Authorize User](./images/authorize-charm-user.png)
 
