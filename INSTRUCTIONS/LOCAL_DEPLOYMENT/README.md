@@ -28,7 +28,10 @@ microk8s enable dns storage ingress
 microk8s status --wait-ready
 ```
 
-Below is the expected output; before moving forward, wait to see that `dns`, `ingress` and `storage` are listed as `enabled`.
+Below is the expected output; before moving forward
+
+> ⚠️ Wait for services
+> Make sure that `dns`, `ingress` and `storage` are listed as `enabled`. This can take a couple of minutes. 
 
 ```bash
 microk8s is running
@@ -45,7 +48,7 @@ addons:
 ```
 
 ## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed); run `juju status` to check if everything is up.
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed); run `juju status` to check if everything is up. This guide was written using Juju 2.9. 
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
@@ -97,7 +100,11 @@ If you are using gitlab.com, follow the following three steps.
 - Create a new application with the following information:
   - name
   - Check the `Confidential` checkbox 
-  - enter a dummy URI in the redirect URL field (http://dummy.org will work for now) 
+  - Enter the following Redirect URIs:
+      http://legend-studio/studio/log.in/callback
+      http://legend-engine/callback
+      http://legend-sdlc/api/auth/callback
+      http://legend-sdlc/api/pac4j/login/callback
   - enable the following scopes: 
     - API
     - Open ID
@@ -110,19 +117,19 @@ On the following page, make a note of the `Application ID` and `Secret`.
 
 In your terminal run the following command to pass the `Application ID` and `Secret` to the Legend stack
 ``` bash
-juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id> "
+juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id>"
 ```
 
 #### 3. Update the GitLab application URIs
 
-Retrieve the GitLab URIs from the GitLab Integrator charm using  
-```bash
-juju show-unit gitlab-integrator/0 | grep legend-gitlab-redirect-uris
+The command below will retrieve the GitLab URIs from the GitLab Integrator charm  
+``` bash
+juju show-unit --app gitlab-integrator/0 | python3 -W ignore -c "import json, sys, yaml; doc = yaml.load(sys.stdin); urls = [json.loads(r['application-data']['legend-gitlab-redirect-uris']) for r in doc['gitlab-integrator/0']['relation-info']]; print('\n'.join([url for url_list in urls for url in url_list]))"
 ```
   
 Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
 
-Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete,
+Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete.
 
 ## Accessing the Legend Studio dashboard
 
@@ -135,17 +142,27 @@ Run `watch --color juju status --color` to see the applications reacting to the 
 > - clear the browser's cache 
 > - [if you are using Firefox](https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop#w_how-to-tell-when-firefox-is-protecting-you), disable Enchanced Tracking Protection for the Studio and SDLC pages.
 
+In order to access the local FINOS Legend Application, the following lines should be added to the `/etc/hosts` file:
+
+``` bash
+127.0.1.1 legend-studio
+127.0.1.1 legend-engine
+127.0.1.1 legend-sdlc
+```
+
+Adding those lines will allow you to access Legend directly in your browser through those user-friendly names.
+
 ### Authorize the GitLab user and application
 
-Run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-sdlc/0*` and point your browser to `http://<SDLC_IP>:7070/api/auth/authorize`; Click on `Authorize` and you should see the text `Authorized`. 
+Run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-sdlc/0*` and point your browser to `http://legend-sdlc/api/auth/authorize`; Click on `Authorize` and you should see the text `Authorized`. 
 
-Similarly, run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-studio/0*` and point your browser to `http://<STUDIO-IP>:8080`. Click on `Authorize`. 
+Similarly, run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-studio/0*` and point your browser to `http://legend-studio/`. Click on `Authorize`. 
 
-If the process was sucessful, you will be able to see the Legend Studio dashboard on `http://<STUDIO-IP>:8080/studio/-/setup`! 🎉
+If the process was sucessful, you will be able to see the Legend Studio dashboard on `http://legend-studio/studio/-/setup`! 🎉
 
 
 ## Destroy setup
-To remove all deployed Legend applications, remove any data and reset Juju to the state it was before Legend was deployed, you can destroy the controller (created during the bootstrapping process). **This is a non-reversible operation - all your data created in studio will be lost!**
+To remove all deployed Legend applications, remove any data and reset Juju to the state it was before Legend was deployed, you can destroy the controller (created during the bootstrapping process). **This is a non-reversible operation - all your data created in studio will be lost!** If you would like to learn more about other less-destructive removal option, please check [this page](https://juju.is/docs/olm/removing-things). 
 
 ```bash
 juju destroy-controller -y --destroy-all-models --destroy-storage finos-legend-controller
@@ -158,3 +175,34 @@ sudo snap remove microk8s --purge
 ```
 
 On MacOS, use `brew remove juju ubuntu/microk8s/microk8s`.
+
+# Other Operations
+
+## Updating Legend applications
+
+You can update and upgrade a charm automatically to the latest version by running ``juju upgrade-charm app-name --channel=edge``. For example, you can upgrade the Legend Studio charm by running: ``juju refresh legend-studio --channel=edge``.
+
+However, if you want want to use a different Container Image than the charm has been published with, you will have to remove the application first, and add it manually, and then add the necessary relationships. You can see the currently created relations by running ``juju status --relations``.
+
+Example: Let's say that you want to redeploy the Legend Studio with the latest ``finos/legend-studio:2.6.0`` image. For this, we need first remove the ``legend-studio`` charm:
+
+``
+juju remove-application legend-studio
+``
+
+You can see the status by running ``juju status``. After it was removed, redeploy it again, and also specifying the new Container Image as a resource:
+
+``
+juju deploy finos-legend-studio-k8s legend-studio --channel=edge --resource studio-image=finos/legend-studio:2.6.0
+``
+
+Afterwards, we need to add the necessary relations:
+
+``
+juju relate legend-studio legend-db
+juju relate legend-studio legend-engine
+juju relate legend-studio legend-sdlc
+juju relate legend-studio gitlab-integrator
+juju relate legend-studio ingress-studio
+``
+
