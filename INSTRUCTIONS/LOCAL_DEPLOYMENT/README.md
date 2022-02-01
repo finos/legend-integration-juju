@@ -102,10 +102,12 @@ If you are using gitlab.com, follow the following three steps.
   - name
   - Check the `Confidential` checkbox 
   - Enter the following Redirect URIs:
+      ```
       http://legend-studio/studio/log.in/callback
       http://legend-engine/callback
       http://legend-sdlc/api/auth/callback
       http://legend-sdlc/api/pac4j/login/callback
+      ```   
   - enable the following scopes: 
     - API
     - Open ID
