@@ -134,7 +134,9 @@ In your terminal run the following command to pass the `Application ID` and `Sec
 juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id> "
 ```
 
-Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this.
+Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this:
+
+![image](https://user-images.githubusercontent.com/5586487/152023319-47887089-310b-434b-8c3c-cf8c913fbc99.png)
 
 
 ## Accessing the Legend Studio dashboard
@@ -192,7 +194,7 @@ You can now proceed to [Authenticate the user and the application](#authenticate
 
 In your browser, enter the following URLs to authorize the user and applications: 
 
-[http://legend-sdlc](http://legend-sdlc) - Click `Authorize`. You should see the text `Authorized`. 
+[http://legend-sdlc/api/auth/authorize](http://legend-sdlc/api/auth/authorize) - Click `Authorize`. You should see the text `Success`. 
 
 [http://legend-engine](http://legend-studio) - Click `Authorize`. You should be redirected to Legend Studio.
 
