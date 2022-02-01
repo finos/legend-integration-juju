@@ -51,7 +51,7 @@ kubectl config rename-context $(kubectl config current-context) finos-legend
 
 To make sure the Legend application are accessible outside the cluster, we need to install the Nginx Ingress resources and set up an AWS LoadBalancer. For this, run:
 ```
-RAW_INGRESS_URL="https://github.com/finos/legend-integration-juju/blob/92284746aec10e1d74bfb0ac762112da5586b288/INSTRUCTIONS/AWS%20EKS"
+RAW_INGRESS_URL="https://raw.githubusercontent.com/finos/legend-integration-juju/92284746aec10e1d74bfb0ac762112da5586b288/INSTRUCTIONS/AWS%20EKS"
 kubectl apply -f "$RAW_INGRESS_URL/eks_ingress.yaml"
 sleep 10
 ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
