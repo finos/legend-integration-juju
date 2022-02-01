@@ -31,6 +31,7 @@ microk8s status --wait-ready
 Below is the expected output; before moving forward
 
 > ⚠️ Wait for services
+> 
 > Make sure that `dns`, `ingress` and `storage` are listed as `enabled`. This can take a couple of minutes. 
 
 ```bash
@@ -149,6 +150,23 @@ In order to access the local FINOS Legend Application, the following lines shoul
 127.0.1.1 legend-engine
 127.0.1.1 legend-sdlc
 ```
+
+> ⚠️ MacOS systems
+> 
+> In MacOS systems, MicroK8s runs in a Multipass VM. To have access to the services running innside the MicroK8s cluster, you will have to use the Multipass IP adress in your `/etc/hosts` file. 
+> Run 
+> ```bash
+> ~ » multipass list
+>  Name                    State             IPv4             Image
+>  microk8s-vm             Running           <IP>             Ubuntu 18.04 LTS
+>                                            10.1.255.65
+> ```
+> And add `<IP>` to your `/etc/hosts`:
+> ``` bash
+> <IP> legend-studio
+> <IP> legend-engine
+> <IP> legend-sdlc
+> ```
 
 Adding those lines will allow you to access Legend directly in your browser through those user-friendly names.
 
