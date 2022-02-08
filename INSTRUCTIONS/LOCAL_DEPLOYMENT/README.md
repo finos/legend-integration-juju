@@ -40,7 +40,7 @@ Below is the expected output; before moving forward
 > 
 > Make sure that `dns`, `ingress` and `storage` are listed as `enabled`. This can take a couple of minutes. 
 
-```bash
+``` bash
 microk8s is running
 high-availability: no
   datastore main nodes: 127.0.0.1:19001
@@ -51,7 +51,6 @@ addons:
     ha-cluster           # Configure high availability on the current node
     ingress              # Ingress controller for external access
     storage              # Storage class; allocates storage from host directory
-...
 ```
 
 ## Install Juju
@@ -62,6 +61,7 @@ If you're interested to know how to run Juju on your cloud of choice, checkout [
 ## Bootstrap Juju
 
 In Juju terms, "bootstrap" means "create a Juju controller", which is the part of Juju that runs in your cluster and controls the applications. You can bootstrap Juju to the EKS cluster by running
+
 ``` bash
 juju bootstrap microk8s finos-legend-controller
 ```
@@ -100,7 +100,7 @@ my_hostname="legend-host"
 juju config legend-engine external-hostname=$my_hostname
 juju config legend-sdlc external-hostname=$my_hostname
 juju config legend-studio external-hostname=$my_hostname
-``
+```
 
 ## Setup and Configure GitLab
 To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
@@ -241,4 +241,3 @@ juju relate legend-studio legend-sdlc
 juju relate legend-studio gitlab-integrator
 juju relate legend-studio ingress-studio
 ``
-
