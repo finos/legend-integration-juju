@@ -91,6 +91,17 @@ watch --color juju status --color
 
 You'll notice that the Unit `gitlab-integrator/0` will get to `blocked` status; this is expected, as you'll need to [Setup and Configure GitLab](#Setup-and-Configure-GitLab).
 
+## Configure a hostname for your Legend Applications
+
+By default, the hostnames used by the Legend Applications will be their Juju deployed application names (for example, for Legend Studio it will be ``legend-studio``). However, you can configure them to be served under the same hostname by running:
+
+```bash
+my_hostname="legend-host"
+juju config legend-engine external-hostname=$my_hostname
+juju config legend-sdlc external-hostname=$my_hostname
+juju config legend-studio external-hostname=$my_hostname
+``
+
 ## Setup and Configure GitLab
 To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
@@ -107,7 +118,13 @@ If you are using gitlab.com, follow the following three steps.
 - Create a new application with the following information:
   - name
   - Check the `Confidential` checkbox 
-  - Enter a dummy URI for now e.g. `http://dummy.com`  
+  - Enter the following redirect URIs:
+    ``` bash
+    http://legend-host/engine/callback
+    http://legend-host/api/auth/callback
+    http://legend-host/api/pac4j/login/callback
+    http://legend-host/studio/log.in/callback
+    ``` 
   - enable the following scopes: 
     - API
     - Open ID
@@ -118,9 +135,12 @@ On the following page, make a note of the `Application ID` and `Secret`.
 
 #### 2. Pass the application details to the Legend stack
 
-In your terminal run the following command to pass the `$GITLAB_APP_ID` and `$GITLAB_SECRET_ID` to the Legend stack
+In your terminal run the following command to pass the `<Application ID>` and `<Secret ID>` to the Legend stack
 ``` bash
-juju config gitlab-integrator gitlab-client-id="$GITLAB_APP_ID" gitlab-client-secret="$GITLAB_SECRET_ID"```
+app_id="<Application ID>"
+secret_id="<Secret ID>"
+juju config gitlab-integrator gitlab-client-id="$app_id" gitlab-client-secret="$secret_id"
+```
 
 #### 3. Update the GitLab application URIs
 
@@ -149,6 +169,7 @@ In order to access the local FINOS Legend Application, the following lines shoul
 ``` bash
 127.0.1.1 legend-host
 ```
+Adding this line will allow you to access Legend directly in your browser through the user-friendly name. `legend-host` is the `external-hostname` [configured for the Legend Applications](#Configure-a-hostname-for-your-Legend-Applications). If you've provided a different name, use that instead.
 
 > ⚠️ MacOS systems
 > 
