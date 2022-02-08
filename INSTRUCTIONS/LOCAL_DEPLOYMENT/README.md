@@ -146,7 +146,7 @@ juju config gitlab-integrator gitlab-client-id="$app_id" gitlab-client-secret="$
 
 The command below will retrieve the GitLab URIs from the GitLab Integrator charm
 ``` bash
-juju run-action gitlab-integrator/0 get-redirect-uris --wait | yq '.unit-gitlab-integrator-0.results.result' -
+juju run-action gitlab-integrator/0 get-redirect-uris --wait
 ```
   
 Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
@@ -157,7 +157,7 @@ Run `watch --color juju status --color` to see the applications reacting to the 
 
 > ⚠️ Browser settings and cookies
 > 
-> The Legend stack rely on cookies to authenticate user across the applications. A recent change on how [samesite cookies](https://web.dev/samesite-cookies-explained/] are handled by Google Chrome and Mozilla Firefox can block the authentication process. To avoid problems with cookies, before starting the authentication process:
+> The Legend stack rely on cookies to authenticate user across the applications. A recent change on how [samesite cookies](https://web.dev/samesite-cookies-explained/) are handled by Google Chrome and Mozilla Firefox can block the authentication process. To avoid problems with cookies, before starting the authentication process:
 >  
 > - make sure you use the private mode
 > - allow samesite cookies in your browser
@@ -190,11 +190,13 @@ Adding those lines will allow you to access Legend directly in your browser thro
 
 ### Authorize the GitLab user and application
 
-Run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-sdlc/0*` and point your browser to `http://legend-sdlc/api/auth/authorize`; Click on `Authorize` and you should see the text `Authorized`. 
+Point your browser to `http://legend-host/api/auth/authorize`; Click on `Authorize` and you should see the text `Authorized`. 
 
-Similarly, run `juju status` on your terminal, grab the `Address` of the `Unit` called `legend-studio/0*` and point your browser to `http://legend-studio/`. Click on `Authorize`. 
+Similarly, point your browser to `http://legend-host/engine`; Click on `Authorize`. 
 
-If the process was sucessful, you will be able to see the Legend Studio dashboard on `http://legend-studio/studio/-/setup`! 🎉
+Finally, point your browser to `http://legend-host/studio/-/setup`. Click on `Authorize`. 
+
+If the process was sucessful, you will be able to see the Legend Studio dashboard on `http://legend-host/studio`! 🎉
 
 
 ## Destroy setup
@@ -234,10 +236,10 @@ juju deploy finos-legend-studio-k8s legend-studio --channel=edge --resource stud
 
 Afterwards, we need to add the necessary relations:
 
-``
+``` bash
 juju relate legend-studio legend-db
 juju relate legend-studio legend-engine
 juju relate legend-studio legend-sdlc
 juju relate legend-studio gitlab-integrator
 juju relate legend-studio ingress-studio
-``
+```
