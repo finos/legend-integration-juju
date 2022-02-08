@@ -19,7 +19,13 @@ sudo chown -f -R $USER ~/.kube
 newgrp microk8s
 ```
 
-On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link --overwrite python@3.9`) and [HomeBrew](brew.sh) installed, you can simply run `brew install ubuntu/microk8s/microk8s`.
+> On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link --overwrite python@3.9`) and [HomeBrew](brew.sh) installed, you can run 
+> 
+> ``` bash
+> brew install multipass
+> brew install ubuntu/microk8s/microk8s
+> microk8s install
+> ```
 
 To configure and start `microk8s`, simply run:
 
@@ -101,13 +107,7 @@ If you are using gitlab.com, follow the following three steps.
 - Create a new application with the following information:
   - name
   - Check the `Confidential` checkbox 
-  - Enter the following Redirect URIs:
-      ```
-      http://legend-studio/studio/log.in/callback
-      http://legend-engine/callback
-      http://legend-sdlc/api/auth/callback
-      http://legend-sdlc/api/pac4j/login/callback
-      ```   
+  - Enter a dummy URI for now e.g. `http://dummy.com`  
   - enable the following scopes: 
     - API
     - Open ID
@@ -118,16 +118,15 @@ On the following page, make a note of the `Application ID` and `Secret`.
 
 #### 2. Pass the application details to the Legend stack
 
-In your terminal run the following command to pass the `Application ID` and `Secret` to the Legend stack
+In your terminal run the following command to pass the `$GITLAB_APP_ID` and `$GITLAB_SECRET_ID` to the Legend stack
 ``` bash
-juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id>"
-```
+juju config gitlab-integrator gitlab-client-id="$GITLAB_APP_ID" gitlab-client-secret="$GITLAB_SECRET_ID"```
 
 #### 3. Update the GitLab application URIs
 
-The command below will retrieve the GitLab URIs from the GitLab Integrator charm  
+The command below will retrieve the GitLab URIs from the GitLab Integrator charm
 ``` bash
-juju show-unit --app gitlab-integrator/0 | python3 -W ignore -c "import json, sys, yaml; doc = yaml.load(sys.stdin); urls = [json.loads(r['application-data']['legend-gitlab-redirect-uris']) for r in doc['gitlab-integrator/0']['relation-info']]; print('\n'.join([url for url_list in urls for url in url_list]))"
+juju run-action gitlab-integrator/0 get-redirect-uris --wait | yq '.unit-gitlab-integrator-0.results.result' -
 ```
   
 Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
@@ -148,9 +147,7 @@ Run `watch --color juju status --color` to see the applications reacting to the 
 In order to access the local FINOS Legend Application, the following lines should be added to the `/etc/hosts` file:
 
 ``` bash
-127.0.1.1 legend-studio
-127.0.1.1 legend-engine
-127.0.1.1 legend-sdlc
+127.0.1.1 legend-host
 ```
 
 > ⚠️ MacOS systems
@@ -165,9 +162,7 @@ In order to access the local FINOS Legend Application, the following lines shoul
 > ```
 > And add `<IP>` to your `/etc/hosts`:
 > ``` bash
-> <IP> legend-studio
-> <IP> legend-engine
-> <IP> legend-sdlc
+> <IP> legend-host
 > ```
 
 Adding those lines will allow you to access Legend directly in your browser through those user-friendly names.
