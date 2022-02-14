@@ -105,7 +105,7 @@ juju config legend-studio external-hostname=$my_hostname
 ## Setup and Configure GitLab
 To run Legend, you need to either run a GitLab instance somewhere, or use GitLab.com; the type of installation really depends on user's requirements, there is a secion in `DEPLOY_GITLAB.md` that talks about that (TODO).
 
-If this is your first experience with Legend, we suggest you starting with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
+If this is your first experience with Legend, we suggest you start with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
 
 If you are using gitlab.com, follow the following three steps.
 
