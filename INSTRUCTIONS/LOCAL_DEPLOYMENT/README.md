@@ -113,7 +113,7 @@ If you are using gitlab.com, follow the following three steps.
 
 1. Create an account on gitlab.com
 2. Create an application:
-- Login GitLab.com, click your profile picture on the right upper corner and click "Preferences". 
+- Login to GitLab.com, click your profile picture on the right upper corner and click "Preferences". 
 - Click "Applications" on the left menu. 
 - Create a new application with the following information:
   - name
