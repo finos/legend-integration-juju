@@ -58,7 +58,7 @@ ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status
 ```
 
 ## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up.
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up. This guide was written using Juju 2.9.
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
@@ -101,6 +101,8 @@ To run Legend, you need to either run a GitLab instance somewhere, or use GitLab
 
 If this is your first experience with Legend, we suggest you starting with GitLab.com as per the instructions below. If, instead, you're interested to test a Legend deployment with a local GitLab, please follow instructions on `DEPLOY_GITLAB.md`.
 
+If you are using gitlab.com, follow the following three steps.
+
 #### 1. Create a GitLab Application
 
 1. Create an account on gitlab.com
@@ -112,10 +114,10 @@ If this is your first experience with Legend, we suggest you starting with GitLa
   - Check the `Confidential` checkbox 
   - Enter the following `Redirect URIs`:
     ``` bash
-    http://legend-studio/studio/log.in/callback
-    http://legend-engine/callback
-    http://legend-sdlc/api/auth/callback
-    http://legend-sdlc/api/pac4j/login/callback
+    http://legend-host/studio/log.in/callback
+    http://legend-host/callback
+    http://legend-host/api/auth/callback
+    http://legend-host/api/pac4j/login/callback
     ```
   - enable the following scopes: 
     - API
@@ -123,7 +125,11 @@ If this is your first experience with Legend, we suggest you starting with GitLa
     - Profile
 3. Click `Save Application`.
 
-Note that the Redirect URIs will have to be replaced manually if you decide to use [multiple Amazon Load Balancers](#using-multiple-aws-load-balancers) or  configure them with external host names.
+**Note**: The Redirect URIs above are based on the ``external-hostname`` configured for the FINOS Legend applications, the value of which will depend on your requirements. For more details, see the [Accessing the Legend Studio dashboard](#Accessing-the-Legend-Studio-dashboard) section. After the config option has been changed, the gitlab.com Callback URIs will have to be updated; you can get them by running:
+
+```bash
+juju run-action gitlab-integrator/0 get-redirect-uris --wait
+```
 
 On the following page, make a note of the `Application ID` and `Secret`. 
 
@@ -131,7 +137,9 @@ On the following page, make a note of the `Application ID` and `Secret`.
 
 In your terminal run the following command to pass the `Application ID` and `Secret` to the Legend stack
 ``` bash
-juju config gitlab-integrator gitlab-client-id="<Application ID>" gitlab-client-secret="<Secret Id> "
+app_id="<Application ID>"
+secret_id="<Secret ID>"
+juju config gitlab-integrator gitlab-client-id="$app_id" gitlab-client-secret="$secret_id"
 ```
 
 Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete, the output should look like this:
@@ -141,43 +149,70 @@ Run `watch --color juju status --color` to see the applications reacting to the 
 
 ## Accessing the Legend Studio dashboard
 
-FINOS Legend can be accessed using two different methods. Choose one that best fits your needs:
+FINOS Legend can be accessed through a few different ways. Choose one that best fits your needs. In all scenarios, we will have to configure the FINOS Legend applications to be served under the same hostname. For example, this would be needed for [direct connection through /etc/hosts](#Direct-connection-through-/etc/hosts):
 
-- [Direct connection through /etc/hosts](#direct_connection_through_/etc/hosts) (recommended for testing purposes)
-- [Bring your own DNS hostnames](#bring_your_own_dns_hostnames)
+```
+HOST_NAME="legend-host"
+juju config legend-studio external-hostname="$HOST_NAME"
+juju config legend-sdlc external-hostname="$HOST_NAME"
+juju config legend-engine external-hostname="$HOST_NAME"
+```
+
+The ``external-hostname`` will depend on the preffered method below. In any case, after the config option has been updated, the [gitlab.com's Callback URIs](#Gitlab.com-Application-setup) will have to be updated as well.
 
 ### Direct connection through /etc/hosts
 
 These instructions need to be replicated in all systems acessing the Legend applications. It's primarily recommended for testing purposes.
 
-In order to access FINOS Legend through this method, we will need to configure the local system's `/etc/hosts` (or ``C:\Windows\System32\drivers\etc\hosts`` file on Windows). You will need to know the `IP` through which we can access the applications:
+
+After the configuration above has been set, in order to access FINOS Legend through this method, we will need to configure our own ``/etc/hosts`` (or ``C:\Windows\System32\drivers\etc\hosts`` file on Windows) to point to it. We will need to know the IP through which we can access our applications:
 
 ``` bash
-dig +short $ALB_FQDN | tail -n 1
+ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+ALB_IP="$(dig +short $ALB_FQDN | tail -n 1)"
+echo $ALB_IP
 ```
 
-Using the `IP` retrieve with the command above, add the follwoing lines to your `/etc/hosts` file
+Using the `IP` retrieved with the command above, add the follwoing lines to your `/etc/hosts` file:
 
 ```
-<IP>      legend-studio
-<IP>      legend-sdlc
-<IP>      legend-engine
+the_ip_above      the_configured_hostname
+```
+
+The line above can de added directly by using this command:
+
+```bash
+echo "$ALB_IP $HOST_NAME" | sudo tee -a /etc/hosts
 ```
 
 The following command should return without errors
 ``` bash
-curl -H "Host: legend-studio" the_ip_above
+curl http://$HOST_NAME
 ```
-You can now proceed to [Authenticate the user and the application](#authenticate_the_user_and_the_application).
+You can now proceed to [Authenticate the user and the application](#authenticate_the_gitlab_user_and_application).
 
-### Bring your own DNS hostnames
+### Using The AWS Load Balancer
 
-You can use your own DNS hostnames to access the FINOS Legend Applications. The applications will have to be configured to respond to those names:
+FINOS Legend is accessible through the configured AWS Load Balancer. The Legend applications simply have to be configured to respond to its name:
+
+```bash
+ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+juju config legend-studio external-hostname="$ALB_FQDN"
+juju config legend-sdlc external-hostname="$ALB_FQDN"
+juju config legend-engine external-hostname="$ALB_FQDN"
+```
+
+You can now proceed to [Authenticate the user and the application](#authenticate_the_gitlab_user_and_application).
+
+### Bring your own DNS hostname
+
+You can use your own DNS hostname to access the FINOS Legend Applications. The applications will have to be configured to respond to that hostname (all 3 Legend applications can be configured to have the same hostname):
 
 ```
-juju config legend-studio external-hostname="studio.your.domainname"
-juju config legend-sdlc external-hostname="sdlc.your.domainname"
-juju config legend-engine external-hostname="engine.your.domainname"
+OWN_HOSTNAME="your.hostname"
+juju config legend-studio external-hostname="$OWN_HOSTNAME"
+juju config legend-sdlc external-hostname="$OWN_HOSTNAME"
+juju config legend-engine external-hostname="$OWN_HOSTNAME"
 ```
 You can now proceed to [Authenticate the user and the application](#authenticate_the_user_and_the_application).
 
@@ -192,13 +227,15 @@ You can now proceed to [Authenticate the user and the application](#authenticate
 > - clear the browser's cache 
 > - [if you are using Firefox](https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop#w_how-to-tell-when-firefox-is-protecting-you), disable Enchanced Tracking Protection for the Studio and SDLC pages.
 
-In your browser, enter the following URLs to authorize the user and applications: 
+The URLs below assumes the configured ``external-hostname`` is ``legend-host``. If you've used a different hostname, update accordingly. In your browser, enter the following URLs to authorize the user and applications: 
 
-[http://legend-sdlc/api/auth/authorize](http://legend-sdlc/api/auth/authorize) - Click `Authorize`. You should see the text `Success`. 
+[http://legend-host/api/auth/authorize](http://legend-host/api/auth/authorize) - Click `Authorize`. You should see the text `Success`.
 
-[http://legend-engine](http://legend-studio) - Click `Authorize`. You should be redirected to Legend Studio.
+[http://legend-host/engine](http://legend-engine/engine) - Click `Authorize`. You should be redirected to Legend Engine.
 
-If the process was sucessful, you will be able to see the Legend Studio dashboard on [http://legend-studio/studio/-/setup](http://legend-studio/studio/-/setup)! 🎉
+[http://legend-host](http://legend-host) - Click `Authorize`. You should be redirected to Legend Studio.
+
+If the process was sucessful, you will be able to see the Legend Studio dashboard on [http://legend-host/studio/-/setup](http://legend-host/studio/-/setup)! 🎉
 
 ## Destroy setup
 
