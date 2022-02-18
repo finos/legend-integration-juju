@@ -146,6 +146,68 @@ Run `watch --color juju status --color` to see the applications reacting to the 
 
 ![image](https://user-images.githubusercontent.com/5586487/152023319-47887089-310b-434b-8c3c-cf8c913fbc99.png)
 
+## TLS Configuration
+
+In order to access FINOS Legend securely through HTTPS, you are going to need a TLS certificate. The certificate will depend on the [service hostname](#Accessing-the-Legend-Studio-dashboard) you are going to use for accessing Legend. Keep in mind that this will configure Ingress-level TLS termination, meaning that any and all requests will be sent to Legend encrypted until it reaches the Kubernetes Ingress. Note that this **will not** work if you're using the Amazon Load Balancer hostname, as it is simply too long and cannot fit in the certificate Common Name (CN).
+
+If you already have a certificate created, you simply have to register into Kubernetes and configure Legend to use it.
+
+```bash
+SECRET_NAME="legend-tls"
+kubectl create secret -n finos-legend tls "$SECRET_NAME" --cert=fullchain.pem --key=privkey.pem
+juju config legend-engine tls-secret-name="$SECRET_NAME"
+juju config legend-sdlc tls-secret-name="$SECRET_NAME"
+juju config legend-studio tls-secret-name="$SECRET_NAME"
+```
+
+If you do not have a certificate yet, you could generate your own self-signed certificate instead. However, using a self-signed certificate will cause your browser to issue a Warning when accessing Legend because the certificate is not verified by a trusted Certificate Authority (CA), but you can still access Legend.
+
+However, it is recommended to use TLS certificates verified by a trusted CA. In this case, The Kubernetes cluster will have to be reachable through a DNS hostname that you own because the CA will attempt to verify your ownership of that hostname through its challenges. If the challenges are not passed, then you won't have CA-verified certificates.
+
+Below is a guide on how to obtain a TLS certificate approved by Let's Encrypt. We are going to use the ``hello-kubecon`` and ``nginx-ingress-integrator`` charms in order to obtain it by solving an HTTP challenge. Bear in mind that the service hostname should **not** be currently in use by any other Ingress Resource.
+
+```bash
+juju deploy hello-kubecon
+juju deploy --trust nginx-ingress-integrator ingress
+juju relate hello-kubecon ingress
+
+OWN_HOSTNAME="your-dns-resolvable-hostname"
+juju config ingress service-hostname="$OWN_HOSTNAME" path-routes="/,/.well-known/acme-challenge"
+```
+
+Make sure the endpoint is reachable:
+
+```bash
+curl http://$OWN_HOSTNAME
+```
+
+The following commands will generate your certificates and registers them into Kubernetes:
+
+```bash
+SECRET_NAME="legend-tls"
+kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- bash -c "apt update && ln -fs /usr/share/zoneinfo/Europe/London /etc/localtime && DEBIAN_FRONTEND=noninteractive apt install -y certbot"
+kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- bash -c "certbot certonly --agree-tos -m email@example.com -d $OWN_HOSTNAME --webroot --webroot-path=/srv"
+kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- cat /etc/letsencrypt/live/$OWN_HOSTNAME/fullchain.pem > fullchain.pem
+kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- cat /etc/letsencrypt/live/$OWN_HOSTNAME/privkey.pem > privkey.pem
+
+kubectl create secret -n finos-legend tls "$SECRET_NAME" --cert=fullchain.pem --key=privkey.pem
+```
+
+We can now configure the Legend Applications to use the TLS secret name:
+
+```bash
+juju config legend-engine tls-secret-name="$SECRET_NAME"
+juju config legend-sdlc tls-secret-name="$SECRET_NAME"
+juju config legend-studio tls-secret-name="$SECRET_NAME"
+```
+
+Finally, we no longer need the ``hello-kubecon`` and ``nginx-ingress-integrator`` charms:
+
+```bash
+juju remove-application ingress
+juju remove-application hello-kubecon
+rm fullchain.pem && rm privkey.pem
+```
 
 ## Accessing the Legend Studio dashboard
 
