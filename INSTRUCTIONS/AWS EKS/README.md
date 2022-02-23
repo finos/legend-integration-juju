@@ -164,49 +164,32 @@ If you do not have a certificate yet, you could generate your own self-signed ce
 
 However, it is recommended to use TLS certificates verified by a trusted CA. In this case, The Kubernetes cluster will have to be reachable through a DNS hostname that you own because the CA will attempt to verify your ownership of that hostname through its challenges. If the challenges are not passed, then you won't have CA-verified certificates.
 
-Below is a guide on how to obtain a TLS certificate approved by Let's Encrypt. We are going to use the ``hello-kubecon`` and ``nginx-ingress-integrator`` charms in order to obtain it by solving an HTTP challenge. Bear in mind that the service hostname should **not** be currently in use by any other Ingress Resource.
+Below is a guide on how to obtain a TLS certificate approved by Let's Encrypt. We are going to use the ``certbot-k8s`` charm and the already deployed ``nginx-ingress-integrator`` charm in order to obtain it by solving an HTTP challenge. The ``certbot-k8s`` will setup an Ingress route for the Let's Encrypt HTTP Challenge and verifies that the is valid.
 
 ```bash
-juju deploy hello-kubecon
-juju deploy --trust nginx-ingress-integrator ingress
-juju relate hello-kubecon ingress
+juju deploy --trust certbot-k8s --channel=edge
+juju deploy --trust nginx-ingress-integrator nginx-ingress
+juju relate certbot-k8s nginx-ingress
 
 OWN_HOSTNAME="your-dns-resolvable-hostname"
-juju config ingress service-hostname="$OWN_HOSTNAME" path-routes="/,/.well-known/acme-challenge"
+OWN_EMAIL="your-email"
+juju config certbot-k8s email="$OWN_EMAIL" agree-tos=true service-hostname="$OWN_HOSTNAME"
+juju config legend-ingress rewrite-enabled=false
 ```
 
-Make sure the endpoint is reachable:
+The charm should automatically generate the certificate and register it into Kubernetes for us to use. Once it's ready, running the following command should give you the Secret name:
 
 ```bash
-curl http://$OWN_HOSTNAME
+juju run-action certbot-k8s/0 get-secret-name --wait
 ```
 
-The following commands will generate your certificates and registers them into Kubernetes:
+We can now configure the ``nginx-ingress-integrator`` charm to use the newly generated certificate, and enable TLS on the Legend Applications as well:
 
 ```bash
-SECRET_NAME="legend-tls"
-kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- bash -c "apt update && ln -fs /usr/share/zoneinfo/Europe/London /etc/localtime && DEBIAN_FRONTEND=noninteractive apt install -y certbot"
-kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- bash -c "certbot certonly --agree-tos -m email@example.com -d $OWN_HOSTNAME --webroot --webroot-path=/srv"
-kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- cat /etc/letsencrypt/live/$OWN_HOSTNAME/fullchain.pem > fullchain.pem
-kubectl exec -ti -n finos-legend pod/hello-kubecon-0 -- cat /etc/letsencrypt/live/$OWN_HOSTNAME/privkey.pem > privkey.pem
-
-kubectl create secret -n finos-legend tls "$SECRET_NAME" --cert=fullchain.pem --key=privkey.pem
-```
-
-We can now configure the Legend Applications to use the TLS secret name:
-
-```bash
-juju config legend-engine tls-secret-name="$SECRET_NAME"
-juju config legend-sdlc tls-secret-name="$SECRET_NAME"
-juju config legend-studio tls-secret-name="$SECRET_NAME"
-```
-
-Finally, we no longer need the ``hello-kubecon`` and ``nginx-ingress-integrator`` charms:
-
-```bash
-juju remove-application ingress
-juju remove-application hello-kubecon
-rm fullchain.pem && rm privkey.pem
+juju config legend-ingress tls-secret-name="$SECRET_NAME"
+juju config legend-engine enable-tls=true
+juju config legend-sdlc enable-tls=true
+juju config legend-studio enable-tls=true
 ```
 
 ## Accessing the Legend Studio dashboard
