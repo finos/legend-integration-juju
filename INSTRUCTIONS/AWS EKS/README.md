@@ -155,10 +155,13 @@ If you already have a certificate created, you simply have to register into Kube
 ```bash
 SECRET_NAME="legend-tls"
 kubectl create secret -n finos-legend tls "$SECRET_NAME" --cert=fullchain.pem --key=privkey.pem
-juju config legend-engine tls-secret-name="$SECRET_NAME"
-juju config legend-sdlc tls-secret-name="$SECRET_NAME"
-juju config legend-studio tls-secret-name="$SECRET_NAME"
+juju config legend-ingress tls-secret-name="$SECRET_NAME"
+juju config legend-engine enable-tls=true
+juju config legend-sdlc enable-tls=true
+juju config legend-studio enable-tls=true
 ```
+
+After the config options above have been updated, the [gitlab.com's Callback URIs](#Gitlab.com-Application-setup) will have to be updated as well.
 
 If you do not have a certificate yet, you could generate your own self-signed certificate instead. However, using a self-signed certificate will cause your browser to issue a Warning when accessing Legend because the certificate is not verified by a trusted Certificate Authority (CA), but you can still access Legend.
 
@@ -174,7 +177,6 @@ juju relate certbot-k8s nginx-ingress
 OWN_HOSTNAME="your-dns-resolvable-hostname"
 OWN_EMAIL="your-email"
 juju config certbot-k8s email="$OWN_EMAIL" agree-tos=true service-hostname="$OWN_HOSTNAME"
-juju config legend-ingress rewrite-enabled=false
 ```
 
 The charm should automatically generate the certificate and register it into Kubernetes for us to use. Once it's ready, running the following command should give you the Secret name:
@@ -191,6 +193,8 @@ juju config legend-engine enable-tls=true
 juju config legend-sdlc enable-tls=true
 juju config legend-studio enable-tls=true
 ```
+
+After the config options above have been updated, the [gitlab.com's Callback URIs](#Gitlab.com-Application-setup) will have to be updated as well.
 
 ## Accessing the Legend Studio dashboard
 
