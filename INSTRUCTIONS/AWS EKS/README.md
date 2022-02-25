@@ -7,6 +7,9 @@ This document can be used for evaluation of the Legend stack running on EKS. Ple
 ### Prerequisites 
 This document assumes that you already have installed the Juju CLI, AWS CLI, ``kubectl``, and ``eksctl`` as described in th prerequisites section of [this page](https://juju.is/docs/olm/amazon-elastic-kubernetes-service-(amazon-eks)#heading--prerequisites). 
 
+## Configure aws CLI
+Before starting, make sure you're connected to the right AWS account, by typing `aws configure`; if you already have a profile set for your installation, you can type `aws configure --profile <my-profile-name>`; profiles are configured in `~/.aws/credentials`.
+
 ## Create and setup an AWS cluster
 
 ### Create the cluster
