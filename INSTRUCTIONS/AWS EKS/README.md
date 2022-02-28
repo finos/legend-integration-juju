@@ -182,7 +182,7 @@ OWN_EMAIL="your-email"
 juju config certbot-k8s email="$OWN_EMAIL" agree-tos=true service-hostname="$HOST_NAME"
 ```
 
-The charm should automatically generate the certificate and register it into Kubernetes for us to use. Once it's ready, running the following command should give you the Secret name:
+The charm should automatically generate the certificate and register it into Kubernetes for us to use. Once it's ready, running the following command should give you the Secret name; make sure that your DNS configuration is in place, otherwise the following command will fail.
 
 ```bash
 juju run-action certbot-k8s/0 get-secret-name --wait
