@@ -177,9 +177,9 @@ juju deploy --trust certbot-k8s --channel=edge
 juju deploy --trust nginx-ingress-integrator nginx-ingress
 juju relate certbot-k8s nginx-ingress
 
-OWN_HOSTNAME="your-dns-resolvable-hostname"
+HOST_NAME="your-dns-resolvable-hostname"
 OWN_EMAIL="your-email"
-juju config certbot-k8s email="$OWN_EMAIL" agree-tos=true service-hostname="$OWN_HOSTNAME"
+juju config certbot-k8s email="$OWN_EMAIL" agree-tos=true service-hostname="$HOST_NAME"
 ```
 
 The charm should automatically generate the certificate and register it into Kubernetes for us to use. Once it's ready, running the following command should give you the Secret name:
