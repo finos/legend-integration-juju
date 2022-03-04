@@ -1,7 +1,7 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@main/images/badge-incubating.svg)](https://github.com/finos/community/blob/master/governance/Software-Projects/Project-Lifecycle.md#incubating-projects)
 
 # Legend Charmed Operator - aka Legend Charm Bundle
-Legend Charm provides a simple, efficient and enterprise-ready way to deploy and orchestrate a Legend instance in any type of environments, from developers workstations, up to production.
+The Legend Charm Bundle provides a simple, efficient and enterprise-ready way to deploy and orchestrate a Legend instance in any type of environments, from developers workstations, up to production. The bundle includes several Charms, one for each Legend component.
 
 Read more about Juju and Charms, access tutorials to deploy locally or in the cloud of your choice in minutes, and how you could support this initiative.
 
@@ -27,7 +27,7 @@ This repository hosts the following tutorials to get started with Legend Charm f
 If you'd like to see the cloud of your choice in this list, do not hesitate to [create an issue](https://github.com/finos/legend-integration-juju/issues)
 
 ## Versioning
-The Legend Charm bundle is composed by several charms, which are hosted in multiple github repositories (see below).
+The Legend Charm Bundle is composed by several charms, which are hosted in multiple github repositories (see below).
 
 Bundles and charms can be released through 2 different channels: **stable** and **edge**; the stable bundle will use stable charm versions, and similarly edge bundles will use edge charm versions.
 
