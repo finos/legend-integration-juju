@@ -33,6 +33,8 @@ Bundles and charms can be released through 2 different channels: **stable** and 
 
 Both bundle and charm versions are aligned with Legend release versions, as specified by the [manifest.json](https://github.com/finos/legend/tree/master/releases) files included in Legend releases.
 
+Visit https://charmhub.io/finos-legend-bundle to know more about Legend Bundle versions available.
+
 ### Related Repositories
 - [legend-juju-bundle](https://github.com/finos/legend-juju-bundle)
 - [legend-juju-gitlab-integrator](https://github.com/finos/legend-juju-gitlab-integrator)
