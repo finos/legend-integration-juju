@@ -1,9 +1,13 @@
 # Deploy Legend on AWS EKS using Juju
+This tutorial will cover how to use Juju and Charmed Operators to deploy an instance of the [FINOS Legend](https://www.finos.org/legend) stack on your local workstation, using [AWS EKS](https://aws.amazon.com/eks/).
+
+## Prerequisites
+These steps may be carried out on any Linux distribution that has a [Snap](https://snapcraft.io/) package manager installed. The steps in this tutorial have been tested on [Ubuntu 20.04](https://releases.ubuntu.com/focal/). 
 
 Follow prerequisite instructions on https://juju.is/docs/olm/amazon-elastic-kubernetes-service-(amazon-eks)
 
 Make sure to use that:
-1. Juju v2.9. Run `brew update` before installing it.
+1. Juju v2.9.25 or higher, check with `juju version`. Run `brew update` before installing it.
 2. The IAM user has all permissions to run EKS operations; for testing purposes, grant Admin rights, then delete the key
 
 ## Create an AWS cluster (without a nodegroup)
