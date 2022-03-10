@@ -1,11 +1,7 @@
-
 # Deploy Legend locally (MicroK8s) using Juju 
 This tutorial will cover how to use Juju and Charmed Operators to deploy an instance of the [FINOS Legend](https://www.finos.org/legend) stack on your local workstation, using [Microk8s](https://microk8s.io/). 
 
-### Audience 
-This document can be used for evaluation and demonstration purposes. This is also useful for development of new Legend features or other FINOS *Charmed* applications. 
-
-### Prerequisites
+## Prerequisites
 These steps may be carried out on any Linux distribution that has a [Snap](https://snapcraft.io/) package manager installed. The steps in this tutorial have been tested on [Ubuntu 20.04](https://releases.ubuntu.com/focal/). 
 
 ## Install Microk8s
@@ -54,7 +50,7 @@ addons:
 ```
 
 ## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed); run `juju status` to check if everything is up. This guide was written using Juju 2.9. 
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed); run `juju status` to check if everything is up. This guide was written using Juju 2.9.25. 
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
