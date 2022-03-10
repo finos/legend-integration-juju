@@ -164,6 +164,8 @@ juju config legend-studio enable-tls=true
 
 After the config options above have been updated, the [gitlab.com's Callback URIs](#Gitlab.com-Application-setup) will have to be updated as well.
 
+**NOTE**: If you're using a proxy service such as Cloudflare which has SSL / TLS options, you might need to update these options to make sure the TLS termination does not occur at the Proxy level. In the Cloudflare's case, it should be updated to ``Full (strict)`` (Encrypts end-to-end, but requires a trusted CA or Cloudflare Origin CA certificate on the server).
+
 **NOTE**: If the hostname has to be changed, and you're [generating a new TLS certificate](#TLS-Configuration) for the new hostname, make sure you reset the ``tls-secret-name`` on the ``legend-ingress`` charm first; configuration options set on that charms apply to all of it relations. If not, ``certbot-k8s`` charm will encounter some issues when trying to solve the Let's Encrypt HTTP Challenge through HTTPS (there will be a mismatch between the TLS certficate currently in use and the new hostname). To do this, run:
 
 ```bash
