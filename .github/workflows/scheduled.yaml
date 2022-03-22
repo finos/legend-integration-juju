@@ -1,0 +1,45 @@
+name: Refresh EKS FINOS Legend deployment
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs everyday at 00:00. (see https://crontab.guru)
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    name: Trigger Juju refresh on EKS Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing Dependencies
+        run: |
+          sudo snap install juju --classic
+
+      # We need the kubeconfig and the controllers.yaml file into our environment
+      # in order to login and refresh the charms.
+      - name: Adding Credentials
+        shell: bash
+        run: |
+          mkdir -p ~/.kube
+          mkdir -p ~/.local/share/juju
+          echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
+          echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
+
+          echo "${CONTROLLER_PASSWORD}" | juju login -u admin
+        env:
+          KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
+          CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
+          CONTROLLER_PASSWORD: "${{ secrets.CONTROLLER_PASSWORD }}"
+
+      - name: Refreshing Charms
+        run: |
+          juju switch finos-legend-controller
+          juju switch finos-legend
+
+          # If a charm is already at its latest revision, juju refresh will have a non-zero
+          # exit code, which will cause this job to fail and not refresh the rest of the charms.
+          # Ideally, juju would have an option to ignore such errors, or at least return a
+          # different exit code for this error case (currently, it returns 1).
+          juju refresh legend-engine || true
+          juju refresh legend-sdlc || true
+          juju refresh legend-studio || true
