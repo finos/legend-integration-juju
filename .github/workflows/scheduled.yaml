@@ -33,7 +33,7 @@ jobs:
 
       - name: Refreshing Charms
         run: |
-          juju switch finos-legend-controller
+          juju switch finos-legend
           juju switch finos-legend
 
           # If a charm is already at its latest revision, juju refresh will have a non-zero
