@@ -35,6 +35,9 @@ jobs:
         run: |
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
+          
+          # Running juju status will show us the current revisions of the charms.
+          juju status
 
           # If a charm is already at its latest revision, juju refresh will have a non-zero
           # exit code, which will cause this job to fail and not refresh the rest of the charms.
@@ -43,3 +46,6 @@ jobs:
           juju refresh legend-engine || true
           juju refresh legend-sdlc || true
           juju refresh legend-studio || true
+          
+          # Running juju status will show us the current revisions of the charms.
+          juju status
