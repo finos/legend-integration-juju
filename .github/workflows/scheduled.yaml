@@ -37,7 +37,7 @@ jobs:
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
           juju whoami
-          juju update-public-clouds
+          juju update-public-clouds --client --controller finos-legend
           juju controllers          
           juju models
           juju clouds
