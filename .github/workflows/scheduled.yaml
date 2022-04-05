@@ -56,7 +56,7 @@ jobs:
           # exit code, which will cause this job to fail and not refresh the rest of the charms.
           # Ideally, juju would have an option to ignore such errors, or at least return a
           # different exit code for this error case (currently, it returns 1).
-          juju refresh legend-engine || true
+          juju refresh legend-engine --debug --logging-config TRACE || true
           juju refresh legend-sdlc || true
           juju refresh legend-studio || true
           
