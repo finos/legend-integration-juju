@@ -39,7 +39,10 @@ jobs:
           # Running juju status will show us the current revisions of the charms.
           juju status
           
-          # Update controller
+          # Upgrade the current model
+          juju upgrade-model
+          
+          # Upgrade controller model
           juju upgrade-controller -c finos-legend
 
           # If a charm is already at its latest revision, juju refresh will have a non-zero
