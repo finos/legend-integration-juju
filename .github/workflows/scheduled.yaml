@@ -25,14 +25,16 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
-          echo "${CONTROLLER_PASSWORD}" | juju login -u admin
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend -u admin
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
           CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
           CONTROLLER_PASSWORD: "${{ secrets.CONTROLLER_PASSWORD }}"
-
+          
       - name: Refreshing Charms
         run: |
+          juju whoami
+          
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
           
@@ -49,9 +51,9 @@ jobs:
           # exit code, which will cause this job to fail and not refresh the rest of the charms.
           # Ideally, juju would have an option to ignore such errors, or at least return a
           # different exit code for this error case (currently, it returns 1).
-          juju refresh legend-engine --channel=latest/edge || true
-          juju refresh legend-sdlc --channel=latest/edge || true
-          juju refresh legend-studio --channel=latest/edge --revision=21 || true
+          juju refresh legend-engine || true
+          juju refresh legend-sdlc || true
+          juju refresh legend-studio || true
           
           # Running juju status will show us the current revisions of the charms.
           juju status
