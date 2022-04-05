@@ -37,6 +37,7 @@ jobs:
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
           juju whoami
+          juju controllers
           
           # Running juju status will show us the current revisions of the charms.
           juju status
@@ -51,9 +52,9 @@ jobs:
           # exit code, which will cause this job to fail and not refresh the rest of the charms.
           # Ideally, juju would have an option to ignore such errors, or at least return a
           # different exit code for this error case (currently, it returns 1).
-          juju refresh legend-engine --debug || true
-          juju refresh legend-sdlc --debug || true
-          juju refresh legend-studio --debug || true
+          juju refresh legend-engine || true
+          juju refresh legend-sdlc || true
+          juju refresh legend-studio || true
           
           # Running juju status will show us the current revisions of the charms.
           juju status
