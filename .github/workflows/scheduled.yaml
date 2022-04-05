@@ -51,7 +51,7 @@ jobs:
           # different exit code for this error case (currently, it returns 1).
           juju refresh legend-engine --channel=latest/edge || true
           juju refresh legend-sdlc --channel=latest/edge || true
-          juju refresh legend-studio --channel=latest/edge || true
+          juju refresh legend-studio --channel=latest/edge --revision=21 || true
           
           # Running juju status will show us the current revisions of the charms.
           juju status
