@@ -26,7 +26,7 @@ jobs:
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
           echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend -u admin
-          sleep 5s        
+        
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
           CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
@@ -37,12 +37,6 @@ jobs:
           
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
-          juju whoami
-          juju update-public-clouds --client --controller finos-legend
-          juju controllers          
-          juju models
-          juju clouds
-
           
           # Running juju status will show us the current revisions of the charms.
           juju status
@@ -57,7 +51,7 @@ jobs:
           # exit code, which will cause this job to fail and not refresh the rest of the charms.
           # Ideally, juju would have an option to ignore such errors, or at least return a
           # different exit code for this error case (currently, it returns 1).
-          juju refresh legend-engine --debug --logging-config TRACE || true
+          juju refresh legend-engine || true
           juju refresh legend-sdlc || true
           juju refresh legend-studio || true
           
