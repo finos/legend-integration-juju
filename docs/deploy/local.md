@@ -80,6 +80,12 @@ Deploy the finos-legend-bundle in the finos-legend model using the command line 
 juju deploy finos-legend-bundle --trust --channel=edge
 ```
 
+The above command will deploy the latest application bundle published. You can deploy a specific version based on a [FINOS Legend release](https://github.com/finos/legend) by its year and month (newer than 2022.04.01):
+
+```bash
+juju deploy finos-legend-bundle --trust --channel=2022-04/edge
+```
+
 In another terminal window, you can see the applications being deployed and the integration code running
 ``` bash
 watch --color juju status --color

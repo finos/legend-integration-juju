@@ -31,6 +31,8 @@ nodeGroups:
 EOF
 ```
 
+The ``region`` and ``instanceType`` can be customized, but make sure that that ``instanceType`` is available in that ``region``.
+
 Finally, you can create the cluster by running
 ``` bash
 eksctl create cluster -f ./eks-cluster.yaml
@@ -66,7 +68,6 @@ To install Juju, you can follow [the instructions in the docs](https://juju.is/d
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
 
-
 ## Bootstrap Juju
 
 In Juju terms, "bootstrap" means "create a Juju controller", which is the part of Juju that runs in your cluster and controls the applications. You can bootstrap Juju to the EKS cluster by running
@@ -92,6 +93,12 @@ Deploy the finos-legend-bundle in the finos-legend model using the command line 
 juju deploy finos-legend-bundle --trust --channel=edge
 ```
 The `--trust` will allow the Nginx charm to have access to the EKS cluster.
+
+The above command will deploy the latest application bundle published. You can deploy a specific version based on a [FINOS Legend release](https://github.com/finos/legend) by its year and month (newer than 2022.04.01):
+
+```bash
+juju deploy finos-legend-bundle --trust --channel=2022-04/edge
+```
 
 In another terminal window, you can see the applications being deployed and the integration code running
 ``` bash
@@ -254,6 +261,9 @@ juju destroy-controller -y --destroy-all-models --destroy-storage finos-legend
 If you want to destroy the entire EKS Cluster, you can run:
 
 ``` bash
+# We also need to delete the nginx-ingress ingress, where the Amazon Load Balancer is allocated.
+# If we don't remove it, it may be leaked into AWS, resulting in additional costs.
+kubectl delete ns/nginx-ingress
 eksctl delete cluster finos-legend --region eu-west-2
 ```
 
