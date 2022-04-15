@@ -41,11 +41,11 @@ jobs:
           # Running juju status will show us the current revisions of the charms.
           juju status
           
-          # Upgrade the current model
-          juju upgrade-model
-          
           # Upgrade controller model
           juju upgrade-controller -c finos-legend
+
+          # Upgrade the current model
+          juju upgrade-model
 
           juju refresh legend-engine
           juju refresh legend-sdlc
