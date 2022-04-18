@@ -123,7 +123,9 @@ juju config legend-engine external-hostname="$HOST_NAME"
 
 ## TLS Configuration
 
-In order to access FINOS Legend securely through HTTPS, you are going to need a TLS certificate. The certificate will depend on the [service hostname](#Accessing-the-Legend-Studio-dashboard) you are going to use for accessing Legend. Keep in mind that this will configure Ingress-level TLS termination, meaning that any and all requests will be sent to Legend encrypted until it reaches the Kubernetes Ingress. Note that this **will not** work if you're using the Amazon Load Balancer hostname, as it is simply too long and cannot fit in the certificate Common Name (CN).
+In order to access FINOS Legend securely through HTTPS, you are going to need a TLS certificate. The certificate will depend on the [service hostname](#Accessing-the-Legend-Studio-dashboard) you are going to use for accessing Legend. Keep in mind that this will configure Ingress-level TLS termination, meaning that any and all requests will be sent to Legend encrypted until it reaches the Kubernetes Ingress. This will also automatically redirect any HTTP request to HTTPS, which means that you need to make sure that TLS termination does not occur at any point before reaching the NGINX Ingress Controller (for example, if you're using Cloudflare with Proxy enabled, make sure that the SSL/ TLS configuration is set to ``Full`` or ``Full (strict)``, otherwise the requests will be infinitely redirected).
+
+Note that this **will not** work if you're using the Amazon Load Balancer hostname, as it is simply too long and cannot fit in the certificate Common Name (CN).
 
 If you already have a certificate created, you simply have to register it into Kubernetes and configure Legend to use it. For more information on how to use it, see the [Enabling HTTPS](#Enabling-HTTPS) section.
 
