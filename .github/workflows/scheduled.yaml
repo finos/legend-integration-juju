@@ -15,8 +15,8 @@ jobs:
         run: |
           sudo snap install juju --classic
 
-      #- name: Install Docker
-      #  uses: docker-practice/actions-setup-docker@master
+      - name: Install Docker
+        uses: docker-practice/actions-setup-docker@master
 
       # We need the kubeconfig and the controllers.yaml file into our environment
       # in order to login and refresh the charms.
@@ -49,19 +49,14 @@ jobs:
 
           # Upgrade the current model
           juju upgrade-model
-          
-          juju refresh legend-engine --channel="latest/edge"
-          juju refresh legend-sdlc --channel="latest/edge"
-          juju refresh legend-studio --channel="latest/edge"
-
-          wget https://api.charmhub.io/api/v1/resources/download/charm_TBzZNfouxr5BSuBzJYfOlS8j646H0Ll7.engine-image_30
-          wget https://api.charmhub.io/api/v1/resources/download/charm_4follyZ2G5M6we0qBGYdoQpkBlpuUTpU.sdlc-image_30
-          wget https://api.charmhub.io/api/v1/resources/download/charm_ydBmjPqafc9RoYcAttbzpqZXvMliaXn3.studio-image_89
-
-          juju attach-resource legend-engine name=charm_TBzZNfouxr5BSuBzJYfOlS8j646H0Ll7.engine-image_30
-          juju attach-resource legend-sdlc name=charm_4follyZ2G5M6we0qBGYdoQpkBlpuUTpU.sdlc-image_30
-          juju attach-resource legend-studio name=charm_ydBmjPqafc9RoYcAttbzpqZXvMliaXn3.studio-image_89
-          
         
+          juju download finos-legend-engine-k8s --channel="latest/edge"
+          juju download finos-legend-sdlc-k8s --channel="latest/edge"
+          juju download finos-legend-studio-k8s --channel="latest/edge"
+        
+          juju refresh legend-engine --path ./finos-legend-engine-k8s.charm
+          juju refresh legend-sdlc --path ./finos-legend-sdlc-k8s.charm
+          juju refresh legend-studio --path ./finos-legend-studio-k8s.charm
+                  
           # Running juju status will show us the current revisions of the charms.
           juju status
