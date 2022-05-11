@@ -45,18 +45,18 @@ jobs:
           juju status
           
           # Upgrade controller model
-          juju upgrade-controller -c finos-legend
+          # juju upgrade-controller -c finos-legend
 
           # Upgrade the current model
-          juju upgrade-model
+          # juju upgrade-model
         
-          juju download finos-legend-engine-k8s --channel="latest/edge"
-          juju download finos-legend-sdlc-k8s --channel="latest/edge"
-          juju download finos-legend-studio-k8s --channel="latest/edge"
+          # juju download finos-legend-engine-k8s --channel="latest/edge"
+          # juju download finos-legend-sdlc-k8s --channel="latest/edge"
+          # juju download finos-legend-studio-k8s --channel="latest/edge"
         
-          juju refresh legend-engine --path ./finos-legend-engine-k8s.charm
-          juju refresh legend-sdlc --path ./finos-legend-sdlc-k8s.charm
-          juju refresh legend-studio --path ./finos-legend-studio-k8s.charm
+          juju refresh legend-engine --switch ch:finos-legend-engine-k8s --channel edge
+          juju refresh legend-sdlc --switch ch:finos-legend-sdlc-k8s --channel edge
+          juju refresh legend-studio --switch ch:finos-legend-studio-k8s --channel edge
                   
           # Running juju status will show us the current revisions of the charms.
           juju status
