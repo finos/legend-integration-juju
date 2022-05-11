@@ -47,9 +47,9 @@ jobs:
           # Upgrade the current model
           juju upgrade-model
 
-          juju refresh legend-engine
-          juju refresh legend-sdlc
-          juju refresh legend-studio
+          juju refresh legend-engine --channel="2022-05/edge"
+          juju refresh legend-sdlc --channel="2022-05/edge"
+          juju refresh legend-studio --channel="2022-05/edge"
           
           # Running juju status will show us the current revisions of the charms.
           juju status
