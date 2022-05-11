@@ -58,9 +58,9 @@ jobs:
           wget https://api.charmhub.io/api/v1/resources/download/charm_4follyZ2G5M6we0qBGYdoQpkBlpuUTpU.sdlc-image_30
           wget https://api.charmhub.io/api/v1/resources/download/charm_ydBmjPqafc9RoYcAttbzpqZXvMliaXn3.studio-image_89
 
-          juju attach-resource legend-engine --name=charm_TBzZNfouxr5BSuBzJYfOlS8j646H0Ll7.engine-image_30
-          juju attach-resource legend-sdlc --name=charm_4follyZ2G5M6we0qBGYdoQpkBlpuUTpU.sdlc-image_30
-          juju attach-resource legend-studio --name=charm_ydBmjPqafc9RoYcAttbzpqZXvMliaXn3.studio-image_89
+          juju attach-resource legend-engine name=charm_TBzZNfouxr5BSuBzJYfOlS8j646H0Ll7.engine-image_30
+          juju attach-resource legend-sdlc name=charm_4follyZ2G5M6we0qBGYdoQpkBlpuUTpU.sdlc-image_30
+          juju attach-resource legend-studio name=charm_ydBmjPqafc9RoYcAttbzpqZXvMliaXn3.studio-image_89
           
         
           # Running juju status will show us the current revisions of the charms.
