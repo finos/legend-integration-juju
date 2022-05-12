@@ -62,9 +62,9 @@ jobs:
           studio_charm_output=$(juju download finos-legend-studio-k8s --channel="latest/edge")
           studio_charm_file=$(cut -d "/" -f2- <<< $studio_charm_output | sed -n '3 p') 
 
-          juju refresh legend-engine --path $engine_charm_file
-          juju refresh legend-sdlc --path $sdlc_charm_file
-          juju refresh legend-studio --path $studio_charm_file
+          juju refresh legend-engine --path=./$engine_charm_file
+          juju refresh legend-sdlc --path=./$sdlc_charm_file
+          juju refresh legend-studio --path=./$studio_charm_file
                   
           # Running juju status will show us the current revisions of the charms.
           juju status
