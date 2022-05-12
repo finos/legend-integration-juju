@@ -50,13 +50,21 @@ jobs:
           # Upgrade the current model
           # juju upgrade-model
         
-          # juju download finos-legend-engine-k8s --channel="latest/edge"
-          # juju download finos-legend-sdlc-k8s --channel="latest/edge"
-          # juju download finos-legend-studio-k8s --channel="latest/edge"
+          ##### TODO change the new charm to local
         
-          juju refresh legend-engine --switch ch:finos-legend-engine-k8s --channel edge
-          juju refresh legend-sdlc --switch ch:finos-legend-sdlc-k8s --channel edge
-          juju refresh legend-studio --switch ch:finos-legend-studio-k8s --channel edge
+        
+          engine_charm_output = $(juju download finos-legend-engine-k8s --channel="latest/edge")
+          engine_charm_file = $(cut -d "/" -f2- <<< $engine_charm_output | sed -n '3 p') 
+          
+          sdlc_charm_output = $(juju download finos-legend-sdlc-k8s --channel="latest/edge"
+          sdlc_charm_file = $(cut -d "/" -f2- <<< $sdlc_charm_output | sed -n '3 p') 
+          
+          studio_charm_output = $(juju download finos-legend-studio-k8s --channel="latest/edge"
+          studio_charm_file = $(cut -d "/" -f2- <<< $studio_charm_output | sed -n '3 p') 
+
+          juju refresh legend-engine --path $engine_charm_file
+          juju refresh legend-sdlc --path $sdlc_charm_file
+          juju refresh legend-studio --path $studio_charm_file
                   
           # Running juju status will show us the current revisions of the charms.
           juju status
