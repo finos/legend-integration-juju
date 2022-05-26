@@ -49,22 +49,44 @@ jobs:
 
           # Upgrade the current model
           # juju upgrade-model
-        
-          ##### TODO change the new charm to local
-        
-        
-          engine_charm_output=$(juju download finos-legend-engine-k8s --channel="latest/edge")
-          engine_charm_file=$(cut -d "/" -f2- <<< $engine_charm_output | sed -n '3 p') 
-          
-          sdlc_charm_output=$(juju download finos-legend-sdlc-k8s --channel="latest/edge")
-          sdlc_charm_file=$(cut -d "/" -f2- <<< $sdlc_charm_output | sed -n '3 p') 
-          
-          studio_charm_output=$(juju download finos-legend-studio-k8s --channel="latest/edge")
-          studio_charm_file=$(cut -d "/" -f2- <<< $studio_charm_output | sed -n '3 p')
 
-          juju refresh legend-engine --path=./finos-legend-engine-k8s_5b17e2c.charm
-          juju refresh legend-sdlc --path=./finos-legend-sdlc-k8s_603475d.charm
-          juju refresh legend-studio --path=./finos-legend-studio-k8s_94e3a34.charm
+          set -x
+
+          update-images() {
+            charm_name=$1 
+            resource_name=$2
+            application_name=$3
+
+            download_url=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1].download.url)'[0] | tr -d '"')
+            curl -sLo $resource_name_download $download_url
+            juju attach-resource $application_name $resource_name=$resource_name_download
+
+          #	charmhub_timestamp=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1]."created-at")'[0] | tr -d '"')
+          #	local_timestamp=$(juju resources $application_name --format=json | jq 'map( .[0].timestamp)'[0] | tr -d '"')
+
+          #	charmhub_timestamp_ut=$(date -d ${charmhub_timestamp} +%s)
+          #	local_timestamp_ut=$(date -d ${local_timestamp} +%s)
+
+
+          #	if [ $charmhub_timestamp_ut -ge $local_timestamp_ut ];
+          #		then 
+          #			download_url=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1].download.url)'[0] | tr -d '"')
+          #			curl -sLo $resource_name_download $download_url
+          #			juju attach-resource $application_name $resource_name=$resource_name_download
+          #		else
+          #			echo "Already running the latest image."
+          #	fi
+
+          }
+          
+          update-images finos-legend-engine-k8s engine-image legend-engine 
+          update-images finos-legend-sdlc-k8s sdlc-image legend-sdlc 
+          update-images finos-legend-studio-k8s studio-image legend-studio 
+        
+          # Updates the charm code if available
+          juju refresh legend-engine --channel="latest/edge"
+          juju refresh legend-sdlc --channel="latest/edge"
+          juju refresh legend-studio --channel="latest/edge"
                   
           # Running juju status will show us the current revisions of the charms.
           juju status
