@@ -59,7 +59,7 @@ jobs:
 
             download_url=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1].download.url)'[0] | tr -d '"')
             curl -sLo ${resource_name}_download $download_url
-            juju attach-resource $application_name $resource_name=$resource_name_download
+            juju attach-resource $application_name $resource_name=${resource_name}_download
 
           #	charmhub_timestamp=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1]."created-at")'[0] | tr -d '"')
           #	local_timestamp=$(juju resources $application_name --format=json | jq 'map( .[0].timestamp)'[0] | tr -d '"')
