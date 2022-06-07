@@ -57,7 +57,7 @@ jobs:
             resource_name=$2
             application_name=$3
             
-            juju resources $application_name --details
+            juju resources ${application_name}/0 --details
 
             download_url=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1].download.url)'[0] | tr -d '"')
             curl -sLo ${resource_name}_download.oci $download_url
@@ -66,7 +66,7 @@ jobs:
             # juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
             juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
 
-            juju resources $application_name --details
+            juju resources ${application_name}/0 --details
           
           #	charmhub_timestamp=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1]."created-at")'[0] | tr -d '"')
           #	local_timestamp=$(juju resources $application_name --format=json | jq 'map( .[0].timestamp)'[0] | tr -d '"')
