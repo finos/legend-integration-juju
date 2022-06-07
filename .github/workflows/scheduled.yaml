@@ -47,10 +47,10 @@ jobs:
           juju status
           
           # Upgrade controller model
-          # juju upgrade-controller -c finos-legend
+          juju upgrade-controller -c finos-legend
 
           # Upgrade the current model
-          # juju upgrade-model
+          juju upgrade-model
 
           set -x
 
