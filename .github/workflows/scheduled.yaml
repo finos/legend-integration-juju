@@ -2,9 +2,9 @@ name: Refresh EKS FINOS Legend deployment
 
 on:
   workflow_dispatch:
-  schedule:
+  #schedule:
     # Runs everyday at 00:00. (see https://crontab.guru)
-    - cron: '0 0 * * *'
+    #- cron: '0 0 * * *'
 
 jobs:
   build:
@@ -57,7 +57,7 @@ jobs:
             resource_name=$2
             application_name=$3
             
-            juju resources $charm_name --details
+            juju resources $application_name --details
 
             download_url=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1].download.url)'[0] | tr -d '"')
             curl -sLo ${resource_name}_download.oci $download_url
@@ -66,7 +66,7 @@ jobs:
             # juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
             juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
 
-            juju resources $charm_name --details
+            juju resources $application_name --details
           
           #	charmhub_timestamp=$(curl -sL https://api.charmhub.io/v2/charms/resources/$charm_name/$resource_name/revisions |  jq 'map( .[-1]."created-at")'[0] | tr -d '"')
           #	local_timestamp=$(juju resources $application_name --format=json | jq 'map( .[0].timestamp)'[0] | tr -d '"')
@@ -85,8 +85,7 @@ jobs:
           #	fi
 
           }
-          
-                
+                          
           update-images finos-legend-engine-k8s engine-image legend-engine 
           update-images finos-legend-sdlc-k8s sdlc-image legend-sdlc 
           update-images finos-legend-studio-k8s studio-image legend-studio 
