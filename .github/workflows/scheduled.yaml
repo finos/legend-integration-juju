@@ -64,7 +64,7 @@ jobs:
             ls
             sha256sum ${resource_name}_download.oci
             # juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
-            juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
+            juju attach-resource $application_name image=${resource_name}_download.oci --debug
 
             juju resources ${application_name}/0 --details
           
