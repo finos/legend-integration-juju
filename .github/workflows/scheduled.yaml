@@ -40,9 +40,7 @@ jobs:
           
           # Controller and model names are the same, "finos-legend"
           juju switch finos-legend:finos-legend
-          
-          juju relate nginx-ingress certbot-k8s
-          
+                    
           # Running juju status will show us the current revisions of the charms.
           juju status --relations
           
