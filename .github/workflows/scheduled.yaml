@@ -63,8 +63,7 @@ jobs:
             curl -sLo ${resource_name}_download.oci $download_url
             ls
             sha256sum ${resource_name}_download.oci
-            # juju attach-resource $application_name $resource_name=${resource_name}_download.oci --debug
-            juju attach-resource --debug $application_name=${resource_name}_download.oci
+            juju attach-resource --debug $application_name $resource_name=${resource_name}_download.oci
 
             juju resources ${application_name}/0 --details
           
