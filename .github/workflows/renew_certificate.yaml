@@ -1,0 +1,53 @@
+name: Renew the CA-verified Certificate
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs at 00:00 on day-of-month 1 in every 2nd month. (see https://crontab.guru)
+    - cron: "0 0 1 */2 *"
+
+jobs:
+  build:
+    name: Trigger Juju renew certificate action on certbot-k8s
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Juju
+        run: |
+          sudo snap install juju --classic
+
+      # We need the kubeconfig and the controllers.yaml file into our environment
+      # in order to login and refresh the charms.
+      - name: Adding Credentials
+        shell: bash
+        run: |
+          mkdir -p ~/.kube
+          mkdir -p ~/.local/share/juju
+          echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
+          echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
+
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend -u admin
+
+        env:
+          KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
+          CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
+          CONTROLLER_PASSWORD: "${{ secrets.CONTROLLER_PASSWORD }}"
+
+      - name: Renewing Certificate
+        run: |
+
+          # Controller and model names are the same, "finos-legend"
+          juju switch finos-legend:finos-legend
+                    
+          # Running juju status will show us the current revisions of the charms.
+          juju status --relations
+
+          # Run the renew action on the certbot-k8s charm.
+          action_result=$(juju run-action certbot-k8s/0 renew-certificate --wait)
+
+          if [[ $action_result != *"status: completed"* ]]; then
+            echo "Certificate renewal failed:\n$action_result" 
+            exit 1
+          fi
+
+          # Show the juju status to see if any errors occurred.
+          juju status --relations
