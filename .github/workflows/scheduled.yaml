@@ -2,9 +2,9 @@ name: Refresh EKS FINOS Legend deployment
 
 on:
   workflow_dispatch:
-  #schedule:
-    # Runs everyday at 00:00. (see https://crontab.guru)
-    #- cron: '0 0 * * *'
+  schedule:
+     Runs everyday at 00:00. (see https://crontab.guru)
+    - cron: '0 0 * * *'
 
 jobs:
   build:
