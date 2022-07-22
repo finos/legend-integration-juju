@@ -4,6 +4,11 @@ This tutorial will cover how to use Juju and Charmed Operators to deploy an inst
 ## Prerequisites
 These steps may be carried out on any Linux distribution that has a [Snap](https://snapcraft.io/) package manager installed. The steps in this tutorial have been tested on [Ubuntu 20.04](https://releases.ubuntu.com/focal/). 
 
+Minimum requirements:
+ - 2 Processor cores
+ - 6 GB RAM
+ - 15 GB Storage
+
 ## Install Microk8s
 [Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that runs locally; you can install it on Linux running the following commands:
 ```bash
@@ -75,10 +80,12 @@ juju add-model finos-legend
 ## Deploy the Legend Bundle
 When you deploy an application with Juju, the installation code in the charmed operator will run and set up all the resources and environmental variables needed for the application to run properly. In the case of this tutorial, we are deploying a *bundle*, which describes applications to be deployed and relationships between them.
 
-Deploy the finos-legend-bundle in the finos-legend model using the command line :
+Deploy the finos-legend-bundle in the finos-legend model using the command line:
 ``` bash
 juju deploy finos-legend-bundle --trust --channel=edge
 ```
+
+If the command fails on first attempt, try again.
 
 The above command will deploy the latest application bundle published. You can deploy a specific version based on a [FINOS Legend release](https://github.com/finos/legend) by its year and month (newer than 2022.04.01):
 
@@ -245,3 +252,17 @@ juju relate legend-studio legend-sdlc
 juju relate legend-studio gitlab-integrator
 juju relate legend-studio ingress-studio
 ```
+
+# Troubleshooting
+## Juju bootstrap fails to deploy finos-legend-controller
+  
+Remove the existing Juju controller by running the following commands:
+  
+``` bash
+juju kill-controller finos-legend-controller
+kubectl delete ns/controller-finos-legend-controller
+juju unregister finos-legend-controller
+```
+  
+After the controller was removed, check system requirements and create a new controller.
+  
