@@ -7,3 +7,7 @@ The [Refresh EKS FINOS Legend deployment](../.github/workflows/scheduled.yaml) j
 - ``CONTROLLER_PASSWORD``: The Juju Controller's admin password. It can be typically found found in ``~/.local/share/juju/accounts.yaml``. This password will be used to authenticate into the Juju Controller.
 
 Once the above repository secrets have been set, the job should succeed. A manual job can also be triggered by going to ``Actions > Refresh EKS FINOS Legend deployment > Run workflow``.
+
+# FINOS Legend charms project status - Periodic job
+
+The ``FINOS Legend charms project status`` [action](../.github/workflows/legend_status.yaml) queries the status of the jobs running on the related repositories, making it easier to check the health of the repositories and charm / bundle publishing processes. This action can also be manually dispatched. But in order for this action to work, the ``GH_TOKEN`` repository secret needs to be added. The token can be [generated](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the ``repo, workflow`` scopes.

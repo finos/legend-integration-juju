@@ -1,0 +1,74 @@
+name: FINOS Legend charms project status
+
+on:
+  workflow_dispatch:
+  schedule:
+     Runs everyday at 00:00. (see https://crontab.guru)
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    name: Trigger Juju refresh on EKS Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing Dependencies
+        run: |
+          # According to https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh
+
+      - name: Adding gh Credentials
+        env:
+          GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+
+      - name: Check Legend charms project status
+        shell: bash
+        run: |
+          IGNORE_STATUS_JOB_NAME="FINOS Legend charms project status"
+          EXIT_CODE=0
+
+          OWNER="finos"
+          declare -a PROJECTS=(
+            "legend-integration-juju"
+            "legend-juju-bundle"
+            "legend-juju-studio-operator"
+            "legend-juju-sdlc-server-operator"
+            "legend-juju-engine-server-operator"
+            "legend-juju-gitlab-integrator"
+            "legend-juju-db-operator"
+          )
+
+          check_project_jobs(){
+            project="$1"
+
+            # We need this in order to preserve the whitespaces as they are written by gh,
+            # (columns separated by tabs), so we can cut them.
+            IFS=''
+            while read -r line
+            do
+              job_name="$(echo $line | cut -f1)"
+              state="$(echo $line | cut -f2)"
+              job_id="$(echo $line | cut -f3)"
+
+              # We need to filter gh workflow view's output to just the jobs runs.
+              # We'll check if the latest one was successful or not.
+              # Expected line: completed       success ...
+              job_status=$(gh workflow view --repo "${project}" "${job_id}" | grep "^completed" | head -n 1 | cut -f2)
+              printf "Project: %40s \t Job name: %35s \t State: %s \t Status: %s\n" "${project}" "${job_name}" "${state}" "${job_status}"
+
+              # Set the return code to 1 if a job had failed.
+              if [ "${job_name}" != "${IGNORE_STATUS_JOB_NAME}" ] && [ "${job_status}" = "failure" ]; then
+                EXIT_CODE=1
+              fi
+            done < <(gh workflow list --repo "${project}")
+          }
+
+          for project in ${PROJECTS[*]};
+          do
+            check_project_jobs "${OWNER}/${project}"
+          done
+
+          exit ${EXIT_CODE}

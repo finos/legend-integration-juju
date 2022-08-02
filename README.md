@@ -51,6 +51,8 @@ The [legend-juju-bundle](https://github.com/finos/legend-juju-bundle) repository
 
 Each repository has included in its ``README.md`` file and docs information about how their GitHub actions have been configured and what repositories secrets they require. In summary, they all require a Charmhub authentication token that has the permission to upload resources for the respective charms.
 
+This repository contains a [GitHub action](.github/workflows/legend_status.yaml) which queries the status of the jobs running on the [related repositories](#Related-Repositores), making it easier to check the health of the repositories and charm / bundle publishing processes.
+
 ## FINOS Legend Juju acceptance environment
 
 The [Juju acceptance environment](https://juju-acct.legend.finos.org/) has been deployed on EKS using the [EKS deployment guide](docs/deploy/aws-eks.md). This repository has been configured with a [GitHub action](.github/workflows/scheduled.yaml) that will update the Legend Engine, SDLC and Studio charms to their latest revisions (and thus, latest image versions).
