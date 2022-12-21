@@ -153,6 +153,8 @@ The charm should automatically generate the certificate and register it into Kub
 juju run-action certbot-k8s/0 get-secret-name --wait
 ```
 
+**_NOTE:_** If you're using juju v3.0.0 or newer, use ``juju run certbot-k8s/0 get-secret-name --wait`` instead.
+
 #### Enabling HTTPS
 
 The step above has generated a certificate for us and registered it as a Kubernetes Secret. If you have your own certificate and you've skipped the step above, you can register it into the Kubernetes cluster using the following command:
@@ -215,6 +217,8 @@ If you are using gitlab.com, follow the following three steps.
 ```bash
 juju run-action gitlab-integrator/0 get-redirect-uris --wait
 ```
+
+**_NOTE:_** If you're using juju v3.0.0 or newer, use ``juju run gitlab-integrator/0 get-redirect-uris --wait`` instead.
 
 On the following page, make a note of the `Application ID` and `Secret`.
 
