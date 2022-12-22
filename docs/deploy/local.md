@@ -150,7 +150,9 @@ The command below will retrieve the GitLab URIs from the GitLab Integrator charm
 ``` bash
 juju run-action gitlab-integrator/0 get-redirect-uris --wait
 ```
-  
+
+**_NOTE:_** If you're using juju v3.0.0 or newer, use ``juju run gitlab-integrator/0 get-redirect-uris --wait=2m`` instead.
+
 Go back to the "Applications" page on GitLab.com and edit the application you created. Replace the dummy URI with the URIs retrieved from the command above and save the application. 
 
 Run `watch --color juju status --color` to see the applications reacting to the configuration change. As a result of this change, your FINOS Legend deployment should complete.
