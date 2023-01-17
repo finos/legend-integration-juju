@@ -44,6 +44,38 @@ The cluster creation can take up to 25 minutes to complete.
 > 2. Try again
 > If you still encounter issues, try using a different AWS region.
 
+If you are using Kubernetes v1.23 or newer, the Amazon Elastic Block Store (Amazon EBS) Container Storage Interface (CSI) driver is needed to manage the Amazon EBS persistent volumes. After deploying the EKS cluster, you can check the Kubernetes cluster version by running:
+
+```
+eksctl get cluster --region CLUSTER-REGION --name CLUSTER-NAME
+```
+
+The EBS CSI driver requires an ``iamserviceaccount`` account. The script below will create the service account and will add the CSI driver as an addon, allowing it to be updatable through ``eksctl``. Make sure that the ``CLUSTER_NAME``, ``REGION_NAME``, are correct, and ``ROLE_NAME`` is unique.
+
+```
+CLUSTER_NAME="finos-legend"
+REGION_NAME="eu-west-2"
+ROLE_NAME="AmazonEKS_EBS_CSI_DriverRole-finos"
+
+eksctl utils associate-iam-oidc-provider --region="$REGION_NAME" --cluster="$CLUSTER_NAME" --approve
+
+eksctl create iamserviceaccount \
+  --name ebs-csi-controller-sa \
+  --namespace kube-system \
+  --cluster "$CLUSTER_NAME" \
+  --region "$REGION_NAME" \
+  --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+  --approve \
+  --role-only \
+  --role-name "${ROLE_NAME}"
+
+# get the role ARN by using jq. Alternatively, the ARN can be fetched manually without using jq.
+ARN=`eksctl get iamserviceaccount -o json --region "$REGION_NAME" --cluster "$CLUSTER_NAME" ebs-csi-controller-sa  | jq '.[0].status.roleARN'`
+
+eksctl create addon --name aws-ebs-csi-driver --region "$REGION_NAME" --cluster "${CLUSTER_NAME}" --service-account-role-arn $ARN --force
+```
+
+You can read [here](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) for more information about the EBS CSI driver and alternative methods to deploy it.
 
 After the EKS cluster was deployed, we need to generate our `kubeconfig` file, which contains the necessary details to connect to our newly created cluster. To do so, run the following:
 
