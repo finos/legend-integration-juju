@@ -28,7 +28,7 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
-          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend -u admin
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v3 -u admin
 
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
