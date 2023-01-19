@@ -111,3 +111,16 @@ jobs:
           wait_for_curl "https://juju-acct.legend.finos.org/engine"
 
           echo "Legend is reachable, getting redirected to gitlab."
+
+      - name: Send email on failure
+        if: failure() && github.event_name == 'schedule'
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: ${{ secrets.EMAIL_SERVER }}
+          server_port: ${{ secrets.EMAIL_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "${{ github.job }} job of ${{ github.repository }} has failed"
+          body: "${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
