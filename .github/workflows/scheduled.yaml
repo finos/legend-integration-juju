@@ -38,8 +38,8 @@ jobs:
       - name: Refreshing Charms
         run: |
 
-          # Controller and model names are the same, "finos-legend"
-          juju switch finos-legend:finos-legend
+          # Controller name is "finos-legend-v3", model name is "finos-legend"
+          juju switch finos-legend-v3:finos-legend
                     
           # Running juju status will show us the current revisions of the charms.
           juju status --relations
