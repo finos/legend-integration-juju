@@ -3,8 +3,8 @@ name: Refresh EKS FINOS Legend deployment
 on:
   workflow_dispatch:
   schedule:
-    # Runs everyday at 00:00. (see https://crontab.guru)
-    - cron: "0 0 * * *"
+    # Runs everyday at 11:15. (see https://crontab.guru)
+    - cron: "15 11 * * *"
 
 jobs:
   build:
@@ -37,6 +37,8 @@ jobs:
 
       - name: Refreshing Charms
         run: |
+          # Add expected failure to test email action.
+          exit 1
 
           # Controller name is "finos-legend-v3", model name is "finos-legend"
           juju switch finos-legend-v3:finos-legend
