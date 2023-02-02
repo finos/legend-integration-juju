@@ -37,9 +37,6 @@ jobs:
 
       - name: Refreshing Charms
         run: |
-          # Add expected failure to test email action.
-          exit 1
-
           # Controller name is "finos-legend-v3", model name is "finos-legend"
           juju switch finos-legend-v3:finos-legend
                     
