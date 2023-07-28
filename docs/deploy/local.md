@@ -7,12 +7,12 @@ These steps may be carried out on any Linux distribution that has a [Snap](https
 ## Install Microk8s
 [Microk8s](https://microk8s.io/) is a *micro* Kubernetes distribution that runs locally; you can install it on Linux running the following commands:
 ```bash
-sudo snap install microk8s --classic
+sudo snap install microk8s --channel 1.27-strict/stable
 sudo snap alias microk8s.kubectl kubectl
 source ~/.profile
-sudo usermod -a -G microk8s $USER
+sudo usermod -a -G snap_microk8s $USER
 sudo chown -f -R $USER ~/.kube
-newgrp microk8s
+newgrp snap_microk8s
 ```
 
 > On Mac, assuming you have XCode, Python 3.9 (with brew, you can run `brew link --overwrite python@3.9`) and [HomeBrew](brew.sh) installed, you can run 
@@ -26,7 +26,7 @@ newgrp microk8s
 To configure and start `microk8s`, simply run:
 
 ```bash
-microk8s enable dns storage ingress
+sudo microk8s enable dns hostpath-storage ingress
 microk8s status --wait-ready
 ```
 
@@ -39,18 +39,21 @@ Below is the expected output; before moving forward
 ``` bash
 microk8s is running
 high-availability: no
-  datastore main nodes: 127.0.0.1:19001
+  datastore master nodes: 127.0.0.1:19001
   datastore standby nodes: none
 addons:
   enabled:
-    dns                  # CoreDNS
-    ha-cluster           # Configure high availability on the current node
-    ingress              # Ingress controller for external access
-    storage              # Storage class; allocates storage from host directory
+    dns                  # (core) CoreDNS
+    ha-cluster           # (core) Configure high availability on the current node
+    helm                 # (core) Helm - the package manager for Kubernetes
+    helm3                # (core) Helm 3 - the package manager for Kubernetes
+    hostpath-storage     # (core) Storage class; allocates storage from host directory
+    ingress              # (core) Ingress controller for external access
+    storage              # (core) Alias to hostpath-storage add-on, deprecated
 ```
 
 ## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed); run `juju status` to check if everything is up. This guide was written using Juju 2.9.25. 
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/juju/get-started-with-juju) or simply install a Juju with the command line `sudo snap install juju`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed). Since the Juju package is strictly confined, you also need to manually create a path `sudo mkdir -p ~/.local/share/juju` and then change the owner of the juju directory: `sudo chown -R $USER .local/share/juju/`; run `juju status` to check if everything is up. This guide was written using Juju 3.1.5. 
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 

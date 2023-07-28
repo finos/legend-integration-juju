@@ -95,7 +95,7 @@ ALB_FQDN="$(kubectl -n nginx-ingress get svc nginx-ingress -o jsonpath='{.status
 ```
 
 ## Install Juju
-To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/olm/installing-juju) or simply install a Juju with the command line `sudo snap install juju --classic`; on MacOS, you can use brew with `brew install juju`; run `juju status` to check if everything is up. Make sure that the version is `2.9.25` or higher, by running the command `juju version`.
+To install Juju, you can follow [the instructions in the docs](https://juju.is/docs/juju/get-started-with-juju) or simply install a Juju with the command line `sudo snap install juju`; on MacOS, you can use brew with `brew install juju` (this will run an upgrade, if the `juju` brew formula is already installed). Since the Juju package is strictly confined, you also need to manually create a path `sudo mkdir -p ~/.local/share/juju` and then change the owner of the juju directory: `sudo chown -R $USER .local/share/juju/`; run `juju status` to check if everything is up. This guide was written using Juju 3.1.5. 
 
 If you're interested to know how to run Juju on your cloud of choice, checkout [the official docs](https://juju.is/docs/olm/clouds); you can always run `juju clouds` to check your configured clouds. In the instructions below, we will always use `microk8s`, but you can replace it with the name of the cloud you're using.
 
