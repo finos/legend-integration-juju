@@ -1,0 +1,106 @@
+name: Switch EKS FINOS Legend Prod and Staging environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Switch Legend Prod and Staging environments
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing Dependencies
+        run: |
+          sudo snap install juju --channel=3.1/stable --classic
+
+      # We need the kubeconfig and the controllers.yaml file into our environment
+      # in order to login and switch the environments.
+      - name: Adding Credentials
+        shell: bash
+        run: |
+          mkdir -p ~/.kube
+          mkdir -p ~/.local/share/juju
+          echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
+          echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
+
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v3 -u admin
+
+        env:
+          KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
+          CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
+          CONTROLLER_PASSWORD: "${{ secrets.CONTROLLER_PASSWORD }}"
+
+      - name: Switch environments
+        run: |
+          # Controller name is "finos-legend-v3", model name is "finos-legend"
+          juju switch finos-legend-v3:finos-legend
+
+          # Running juju status will show us the current revisions of the charms.
+          echo "finos-legend model status:"
+          juju status --relations
+          echo "finos-legend-twin model status:"
+          juju status -m finos-legend-twin --relations
+
+          set -x
+          set -e
+
+          # We have the finos-legend and finos-legend-twin models, which correspond to
+          # the production and staging environments. They each have a DNS name, and
+          # swapping them would effectively promote the staging environment to production
+          # and vice versa.
+          # The 2 models also have different gitlab configurations that need to be swapped.
+
+          # Get the first DNS name, TLS secret name, and gitlab config.
+          DNS_NAME_A="$(juju config legend-studio external-hostname)"
+          TLS_SECRET_A="$(juju config legend-ingress tls-secret-name)"
+          #GITLAB_APP_A="$(juju config gitlab-integrator gitlab-client-id)"
+          #GITLAB_SECRET_A="$(juju config gitlab-integrator gitlab-client-secret)"
+
+          # Get the second DNS name and TLS secret name, and gitlab config.
+          juju switch finos-legend-twin
+          DNS_NAME_B="$(juju config legend-studio external-hostname)"
+          TLS_SECRET_B="$(juju config legend-ingress tls-secret-name)"
+          #GITLAB_APP_B="$(juju config gitlab-integrator gitlab-client-id)"
+          #GITLAB_SECRET_B="$(juju config gitlab-integrator gitlab-client-secret)"
+
+          juju config certbot-k8s service-hostname="${DNS_NAME_A}"
+          juju config legend-studio external-hostname="${DNS_NAME_A}"
+          juju config legend-sdlc external-hostname="${DNS_NAME_A}"
+          juju config legend-engine external-hostname="${DNS_NAME_A}"
+          juju config legend-ingress tls-secret-name="${TLS_SECRET_A}"
+
+          juju switch finos-legend-v3:finos-legend
+          juju config certbot-k8s service-hostname="${DNS_NAME_B}"
+          juju config legend-studio external-hostname="${DNS_NAME_B}"
+          juju config legend-sdlc external-hostname="${DNS_NAME_B}"
+          juju config legend-engine external-hostname="${DNS_NAME_B}"
+          juju config legend-ingress tls-secret-name="${TLS_SECRET_B}"
+
+          # Swap the Gitlab integrator configs.
+          juju config gitlab-integrator > gitlab-config.yaml
+          juju config -m finos-legend-twin gitlab-integrator | juju config gitlab-integrator --file -
+          juju config -m finos-legend-twin gitlab-integrator --file ./gitlab-config.yaml
+
+      - name: Check Legend Instances status
+        run: |
+          wait_for_curl() {
+            url="$1"
+            for i in {1..30}; do
+              # Any request to any Legend Application should be redirected to gitlab.com
+              curl -i "${url}" | grep "302 Found" && break
+              if [ "$i" -eq 30 ]; then
+                echo "Failed to get '302 Found' response status from ${url}"
+                exit 1
+              fi
+              sleep 10
+            done
+          }
+
+          wait_for_curl "https://juju-acct.legend.finos.org/"
+          wait_for_curl "https://juju-acct.legend.finos.org/api"
+          wait_for_curl "https://juju-acct.legend.finos.org/engine"
+          echo "juju-acct.legend.finos.org is reachable, getting redirected to gitlab."
+
+          wait_for_curl "https://staging.legend.finos.org/"
+          wait_for_curl "https://staging.legend.finos.org/api"
+          wait_for_curl "https://staging.finos.org/engine"
+          echo "staging.legend.finos.org is reachable, getting redirected to gitlab."
