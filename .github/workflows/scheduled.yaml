@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Installing Dependencies
         run: |
-          sudo snap install juju --channel=3.0/stable --classic
+          sudo snap install juju --channel=3.1/stable --classic
 
       - name: Install Docker
         uses: docker-practice/actions-setup-docker@master
