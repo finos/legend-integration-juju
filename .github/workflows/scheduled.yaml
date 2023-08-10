@@ -37,13 +37,21 @@ jobs:
 
       - name: Refreshing Charms
         run: |
+          set -x
+
+          # We only refresh the staging environment. We need to check which model
+          # is the staging one. We can find it by the configured external-hostname.
           # Controller name is "finos-legend-v3", model name is "finos-legend"
-          juju switch finos-legend-v3:finos-legend
+          model="finos-legend-v3:finos-legend"
+          if [ "$(juju config -m $model legend-studio external-hostname)" != "staging.legend.finos.org" ]; then
+            model="finos-legend-v3:finos-legend-twin"
+          fi
+
+          juju switch "${model}"
                     
           # Running juju status will show us the current revisions of the charms.
           juju status --relations
 
-          set -x
 
           update-images() {
             charm_name=$1 
@@ -105,11 +113,11 @@ jobs:
             done
           }
 
-          wait_for_curl "https://juju-acct.legend.finos.org/"
-          wait_for_curl "https://juju-acct.legend.finos.org/api"
-          wait_for_curl "https://juju-acct.legend.finos.org/engine"
+          wait_for_curl "https://staging.legend.finos.org/"
+          wait_for_curl "https://staging.legend.finos.org/api"
+          wait_for_curl "https://staging.legend.finos.org/engine"
 
-          echo "Legend is reachable, getting redirected to gitlab."
+          echo "Staging Legend is reachable, getting redirected to gitlab."
 
       - name: Send email on failure
         if: failure() && github.event_name == 'schedule'

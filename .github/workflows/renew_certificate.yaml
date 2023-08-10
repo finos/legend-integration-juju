@@ -34,23 +34,28 @@ jobs:
 
       - name: Renewing Certificate
         run: |
+          renew_certificate() {
+            model=$1
+            juju switch "${model}"
+                    
+            # Running juju status will show us the current revisions of the charms.
+            juju status --relations
+
+            # Run the renew action on the certbot-k8s charm.
+            action_result=$(juju run certbot-k8s/0 renew-certificate --wait=10m)
+
+            if [[ $? -ne 0 ]]; then
+              echo "Certificate renewal failed:\n$action_result" 
+              exit 1
+            fi
+
+            # Show the juju status to see if any errors occurred.
+            juju status --relations
+          }
 
           # Controller name is "finos-legend-v3", model name is "finos-legend"
-          juju switch finos-legend-v3:finos-legend
-                    
-          # Running juju status will show us the current revisions of the charms.
-          juju status --relations
-
-          # Run the renew action on the certbot-k8s charm.
-          action_result=$(juju run certbot-k8s/0 renew-certificate --wait=10m)
-
-          if [[ $? -ne 0 ]]; then
-            echo "Certificate renewal failed:\n$action_result" 
-            exit 1
-          fi
-
-          # Show the juju status to see if any errors occurred.
-          juju status --relations
+          renew_certificate "finos-legend-v3:finos-legend"
+          renew_certificate "finos-legend-v3:finos-legend-twin"
 
       - name: Send email on failure
         if: failure() && github.event_name == 'schedule'
