@@ -102,5 +102,5 @@ jobs:
 
           wait_for_curl "https://staging.legend.finos.org/"
           wait_for_curl "https://staging.legend.finos.org/api"
-          wait_for_curl "https://staging.finos.org/engine"
+          wait_for_curl "https://staging.legend.finos.org/engine"
           echo "staging.legend.finos.org is reachable, getting redirected to gitlab."
