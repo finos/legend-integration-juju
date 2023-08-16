@@ -80,6 +80,10 @@ jobs:
           juju config -m finos-legend-twin gitlab-integrator | juju config gitlab-integrator --file -
           juju config -m finos-legend-twin gitlab-integrator --file ./gitlab-config.yaml
 
+          # Disable the Refresh workflow, so it doesn't update the current Staging environment.
+          # According to the documentation, we can refer to it by its file name.
+          gh workflow disable scheduled.yaml
+
       - name: Check Legend Instances status
         run: |
           wait_for_curl() {
