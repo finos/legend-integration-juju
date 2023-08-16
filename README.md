@@ -58,13 +58,8 @@ The [Juju acceptance environment](https://juju-acct.legend.finos.org/) has been 
 For more information on how the GitHub action has been set up, see [here](docs/periodic_job.md).
 
 ### Related Repositories
-- [legend-juju-bundle](https://github.com/finos/legend-juju-bundle)
-- [legend-juju-gitlab-integrator](https://github.com/finos/legend-juju-gitlab-integrator)
-- [legend-juju-db-operator](https://github.com/finos/legend-juju-db-operator)
-- [legend-juju-libs](https://github.com/finos/legend-juju-libs)
-- [legend-juju-studio-operator](https://github.com/finos/legend-juju-studio-operator)
-- [legend-juju-sdlc-server-operator](https://github.com/finos/legend-juju-sdlc-server-operator)
-- [legend-juju-engine-server-operator](https://github.com/finos/legend-juju-engine-server-operator)
+
+You can browse all repositories related with the Legend Juju Bundle via https://github.com/topics/legend-juju
 
 ## Help and Support
 Feel free to [create an issue](https://github.com/finos/legend-integration-juju/issues/new/choose) or submit a Pull Request to this repository in order to contribute; make sure to read the Legend [Contribution Guide](https://github.com/finos/legend/blob/main/CONTRIBUTING.md) first.
