@@ -53,9 +53,9 @@ Each repository has included in its ``README.md`` file and docs information abou
 
 ## FINOS Legend Juju acceptance environment
 
-The [Juju acceptance environment](https://juju-acct.legend.finos.org/) has been deployed on EKS using the [EKS deployment guide](docs/deploy/aws-eks.md). This repository has been configured with a [GitHub action](.github/workflows/scheduled.yaml) that will update the Legend Engine, SDLC and Studio charms to their latest revisions (and thus, latest image versions).
+The [Juju acceptance environment](https://juju-acct.legend.finos.org/) has been deployed on EKS using the [EKS deployment guide](docs/deploy/aws-eks.md). This repository has been configured with a [GitHub action](.github/workflows/scheduled.yaml) that will update the Legend Engine, SDLC and Studio charms of the [Staging environment](https://staging.legend.finos.org/) to their latest revisions (and thus, latest image versions).
 
-For more information on how the GitHub action has been set up, see [here](docs/periodic_job.md).
+For more information on how the GitHub action has been set up, as well as other actions currently running for the EKS environment, see [here](docs/repository_jobs.md).
 
 ### Related Repositories
 
