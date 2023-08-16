@@ -1,0 +1,50 @@
+name: Upgrade Juju Controller and Juju Models
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_version:
+        description: 'Version to upgrade to'
+        required: true
+
+jobs:
+  build:
+    name: Trigger Juju ugrade controller and models on EKS Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing Dependencies
+        run: |
+          sudo snap install juju --channel=3.1/stable --classic
+
+      # We need the kubeconfig and the controllers.yaml file into our environment
+      # in order to login and refresh the charms.
+      - name: Adding Credentials
+        shell: bash
+        run: |
+          mkdir -p ~/.kube
+          mkdir -p ~/.local/share/juju
+          echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
+          echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
+        env:
+          KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
+          CONTROLLERS_B64: "${{ secrets.CONTROLLERS_B64 }}"
+
+      - name: Upgrade Juju Controller and Juju Model
+        run: |
+          # Compare if the juju controller version is lower than the version we want to upgrade to
+          if dpkg --compare-versions $(juju show-controller | grep controller-model-version | grep -Po "(\d+\.)+\d+") "lt" ${{ github.event.inputs.agent_version }}
+          then
+            echo "Starting upgrade..."
+            
+            # Upgrading the controller
+            juju upgrade-controller -c finos-legend-v3 --agent-version ${{ github.event.inputs.agent_version }}
+            
+            # Upgrading the model finos-legend
+            juju upgrade-model -m finos-legend --agent-version ${{ github.event.inputs.agent_version }}
+
+            # Upgrading the model finos-legend-twin
+            juju upgrade-model -m finos-legend-twin --agent-version ${{ github.event.inputs.agent_version }}
+          fi
+
+          echo "Upgrade skipped, ${{ github.event.inputs.agent_version }} is not greater than $(juju show-controller | grep controller-model-version | grep -Po "(\d+\.)+\d+")"
+          return 1
