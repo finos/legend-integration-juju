@@ -102,10 +102,10 @@ jobs:
         run: |
           wait_for_curl() {
             url="$1"
-            for i in {1..30}; do
+            for i in {1..40}; do
               # Any request to any Legend Application should be redirected to gitlab.com
               curl -i "${url}" | grep "302 Found" && break
-              if [ "$i" -eq 30 ]; then
+              if [ "$i" -eq 40 ]; then
                 echo "Failed to get '302 Found' response status from ${url}"
                 exit 1
               fi
@@ -113,9 +113,9 @@ jobs:
             done
           }
 
-          wait_for_curl "https://staging.legend.finos.org/"
-          wait_for_curl "https://staging.legend.finos.org/api"
           wait_for_curl "https://staging.legend.finos.org/engine"
+          wait_for_curl "https://staging.legend.finos.org/api"
+          wait_for_curl "https://staging.legend.finos.org/"
 
           echo "Staging Legend is reachable, getting redirected to gitlab."
 
