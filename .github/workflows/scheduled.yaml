@@ -105,7 +105,7 @@ jobs:
             expected_code="${2:-302 Found}"
             for i in {1..40}; do
               # Any request to any Legend Application should be redirected to gitlab.com
-              curl -i "${url}" | grep "{expected_code}" && break
+              curl -i "${url}" | grep "${expected_code}" && break
               if [ "$i" -eq 40 ]; then
                 echo "Failed to get '302 Found' response status from ${url}"
                 exit 1
