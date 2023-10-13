@@ -114,8 +114,9 @@ jobs:
             done
           }
 
-          wait_for_curl "https://staging.legend.finos.org/engine"
+          wait_for_curl "https://staging.legend.finos.org/engine/"
           wait_for_curl "https://staging.legend.finos.org/api"
+          wait_for_curl "https://staging.legend.finos.org/studio"
           wait_for_curl "https://staging.legend.finos.org/" "200 OK"
 
           echo "Staging Legend is reachable, getting redirected to gitlab."
