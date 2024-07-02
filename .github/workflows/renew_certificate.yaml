@@ -34,6 +34,8 @@ jobs:
 
       - name: Renewing Certificate
         run: |
+          set -x
+          set -e
           renew_certificate() {
             model=$1
             juju switch "${model}"
