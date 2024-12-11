@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Installing Dependencies
         run: |
-          sudo snap install juju --channel=3.1/stable --classic
+          sudo snap install juju --channel=3.6/stable --classic
 
       # We need the kubeconfig and the controllers.yaml file into our environment
       # in order to login and switch the environments.
@@ -22,7 +22,7 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
-          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v3 -u admin
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v36 -u admin
 
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
@@ -31,8 +31,8 @@ jobs:
 
       - name: Switch environments
         run: |
-          # Controller name is "finos-legend-v3", model name is "finos-legend"
-          juju switch finos-legend-v3:finos-legend
+          # Controller name is "finos-legend-v36", model name is "finos-legend"
+          juju switch finos-legend-v36:finos-legend
 
           # Running juju status will show us the current revisions of the charms.
           echo "finos-legend model status:"
@@ -68,7 +68,7 @@ jobs:
           juju config legend-engine external-hostname="${DNS_NAME_A}"
           juju config legend-ingress tls-secret-name="${TLS_SECRET_A}"
 
-          juju switch finos-legend-v3:finos-legend
+          juju switch finos-legend-v36:finos-legend
           juju config certbot-k8s service-hostname="${DNS_NAME_B}"
           juju config legend-studio external-hostname="${DNS_NAME_B}"
           juju config legend-sdlc external-hostname="${DNS_NAME_B}"
