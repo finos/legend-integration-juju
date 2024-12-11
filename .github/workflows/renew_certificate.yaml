@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Install Juju
         run: |
-          sudo snap install juju --channel=3.1/stable --classic
+          sudo snap install juju --channel=3.6/stable --classic
 
       # We need the kubeconfig and the controllers.yaml file into our environment
       # in order to login and refresh the charms.
@@ -25,7 +25,7 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
-          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v3 -u admin
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v36 -u admin
 
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
@@ -55,9 +55,9 @@ jobs:
             juju status --relations
           }
 
-          # Controller name is "finos-legend-v3", model name is "finos-legend"
-          renew_certificate "finos-legend-v3:finos-legend"
-          renew_certificate "finos-legend-v3:finos-legend-twin"
+          # Controller name is "finos-legend-v36", model name is "finos-legend"
+          renew_certificate "finos-legend-v36:finos-legend"
+          renew_certificate "finos-legend-v36:finos-legend-twin"
 
       - name: Send email on failure
         if: failure() && github.event_name == 'schedule'

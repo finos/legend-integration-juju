@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Installing Dependencies
         run: |
-          sudo snap install juju --channel=3.1/stable --classic
+          sudo snap install juju --channel=3.6/stable --classic
 
       - name: Install Docker
         uses: docker-practice/actions-setup-docker@master
@@ -28,7 +28,7 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
           echo "${CONTROLLERS_B64}" | base64 -d > ~/.local/share/juju/controllers.yaml
 
-          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v3 -u admin
+          echo "${CONTROLLER_PASSWORD}" | juju login -c finos-legend-v36 -u admin
 
         env:
           KUBECONFIG_B64: "${{ secrets.KUBECONFIG_B64 }}"
@@ -41,10 +41,10 @@ jobs:
 
           # We only refresh the staging environment. We need to check which model
           # is the staging one. We can find it by the configured external-hostname.
-          # Controller name is "finos-legend-v3", model name is "finos-legend"
-          model="finos-legend-v3:finos-legend"
+          # Controller name is "finos-legend-v36", model name is "finos-legend"
+          model="finos-legend-v36:finos-legend"
           if [ "$(juju config -m $model legend-studio external-hostname)" != "staging.legend.finos.org" ]; then
-            model="finos-legend-v3:finos-legend-twin"
+            model="finos-legend-v36:finos-legend-twin"
           fi
 
           juju switch "${model}"
